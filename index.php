@@ -16,8 +16,10 @@
     case '7': include('logout.php'); break;	
     case '8': include('set-pass.php'); break;	
     case '9': include('settings.php'); break;	
-    case '10': include('delete-modal.php'); break;	
-    case '11': include('delete-exec.php'); break;	
+    case '10': include('delete-server-modal.php'); break;	
+    case '11': include('delete-server-exec.php'); break;
+    case '12': include('delete-board-modal.php'); break;	
+    case '13': include('delete-board-exec.php'); break;		
 	default : include('404.php'); break;    
 	}
 	

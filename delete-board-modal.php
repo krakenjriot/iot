@@ -1,8 +1,8 @@
 <?php
-	if(isset($_GET['server_name'])){
-		$server_name = $_GET['server_name'];
+	if(isset($_GET['board_name'])){
+		$board_name = $_GET['board_name'];
 	} else {
-		$server_name = "";
+		$board_name = "";
 	}				
 ?>
 
@@ -34,12 +34,12 @@
                     </button>
                 </div>
                 <div class="modal-body">Are you sure you want to delete the server?
-				<?php echo $server_name; ?>
+				<?php echo $board_name; ?>
 				</div>
                 <div class="modal-footer">
                     <!--<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>-->
-                    <a class="btn btn-primary" href="?p=4&webserverinfo=delete-server-abort">Cancel</a>
-                    <a class="btn btn-primary" href="?p=11&server_name=<?php echo $server_name; ?>">Yes</a>
+                    <a class="btn btn-primary" href="?p=4&board_notif=delete-board-abort">Cancel</a>
+                    <a class="btn btn-primary" href="?p=13&board_name=<?php echo $board_name; ?>">Yes</a>
                 </div>
             </div>
         </div>

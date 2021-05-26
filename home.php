@@ -1,7 +1,8 @@
 <?php	
 
 	include("dbconnect.php");
-	
+	$online_servers = "";
+	$offline_servers = "";
 	//get server_notif
 	if(isset($_GET['server_notif'])){
 		$server_notif = $_GET['server_notif'];
@@ -33,20 +34,62 @@
 	$fullname = ucfirst($fname)." ".ucfirst($lname);
 	
 	//count online server	
-	$sql = "SELECT * FROM tbl_webservers WHERE active=1";
-	if ($result=mysqli_query($conn,$sql))
+	$sql = "SELECT * FROM tbl_servers WHERE active=1";
+	if ($result = mysqli_query($conn,$sql))
 	 {	  
-	  $online_webserver=mysqli_num_rows($result);	  
+	  $online_servers = mysqli_num_rows($result);	  
 	  mysqli_free_result($result);
 	 }
 
 	//count offline server
-	$sql = "SELECT * FROM tbl_webservers WHERE active=0";
-	if ($result=mysqli_query($conn,$sql))
+	$sql = "SELECT * FROM tbl_servers WHERE active=0";
+	if ($result = mysqli_query($conn,$sql))
 	 {	  
-	  $offline_webserver=mysqli_num_rows($result);	  
+	  $offline_servers = mysqli_num_rows($result);	  
 	  mysqli_free_result($result);
 	 }	
+	 
+	//count online board	
+	$sql = "SELECT * FROM tbl_boards WHERE active=1";
+	if ($result = mysqli_query($conn,$sql))
+	 {	  
+	  $online_boards = mysqli_num_rows($result);	  
+	  mysqli_free_result($result);
+	 }
+
+	//count offline board
+	$sql = "SELECT * FROM tbl_boards WHERE active=0";
+	if ($result = mysqli_query($conn,$sql))
+	 {	  
+	  $offline_boards = mysqli_num_rows($result);	  
+	  mysqli_free_result($result);
+	 }	 
+	 
+	 
+	//count online board	
+	$sql = "SELECT * FROM tbl_switches WHERE active=1";
+	if ($result = mysqli_query($conn,$sql))
+	 {	  
+	  $online_switches = mysqli_num_rows($result);	  
+	  mysqli_free_result($result);
+	 }
+
+	//count offline board
+	$sql = "SELECT * FROM tbl_switches WHERE active=0";
+	if ($result = mysqli_query($conn,$sql))
+	 {	  
+	  $offline_switches = mysqli_num_rows($result);	  
+	  mysqli_free_result($result);
+	 }	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
 		
 		
 	if(isset($_POST['submit_server'])){
@@ -67,15 +110,15 @@
 		$htdocs_dir = addslashes($_POST['htdocs_dir']);
 		$conf_dir = addslashes($_POST['conf_dir']);
 
-		$sql = "SELECT * FROM tbl_webservers ";
-		$result = mysqli_query($conn, $sql);
+		//$sql = "SELECT * FROM tbl_serverss ";
+		//$result = mysqli_query($conn, $sql);
 
-		$sql = "INSERT INTO tbl_webservers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir)
+		$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir)
 		VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir')";
 
 		if ($conn->query($sql) === TRUE) {
 			//echo "New record created successfully";
-		  	header("location: ?p=4&server_notif=new-server-added-successfully");
+		  	header("location: ?p=4&server_notif=new-server-added-successfull");
 			exit();	
 		} else {
 		  echo "Error: " . $sql . "<br>" . $conn->error;
@@ -85,36 +128,53 @@
 	
 	if(isset($_POST['submit_board'])){
 		/*
+		board_name
+		board_desc
+		board_location
 		server_name
-		server_desc
-		server_ip
-		server_location
-		server_timezone
-		htdocs_dir
-		conf_dir
+		active
 		*/		
+		$board_name = $_POST['board_name'];
+		$board_desc = $_POST['board_desc'];
 		$server_name = $_POST['server_name'];
-		$server_desc = $_POST['server_desc'];
-		$server_ip = $_POST['server_ip'];
-		$server_location = $_POST['server_location'];
-		$server_timezone = $_POST['server_timezone'];
-		$htdocs_dir = addslashes($_POST['htdocs_dir']);
-		$conf_dir = addslashes($_POST['conf_dir']);
+		$active = $_POST['active'];
 
-		$sql = "SELECT * FROM tbl_webservers ";
-		$result = mysqli_query($conn, $sql);
-
-		$sql = "INSERT INTO tbl_webservers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir)
-		VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir')";
-
-		if ($conn->query($sql) === TRUE) {
+		$sql = "INSERT INTO tbl_boards (board_name, board_desc, server_name, active)
+		VALUES ('$board_name', '$board_desc', '$server_name', '$active')";
+		$conn->query($sql);
+		
+		//if ($conn->query($sql) === TRUE) {
 			//echo "New record created successfully";
-		  	header("location: ?p=4&board_notif=new-server-added-successfully");
-			exit();	
-		} else {
-		  echo "Error: " . $sql . "<br>" . $conn->error;
-		}
+		  	//header("location: ?p=4&board_notif=new-board-added-successfull");
+			//exit();	
+		//} 
+		
 		//$conn->close();
+		
+		
+		/*
+			pin_name
+			pin_desc
+			pin_num
+			server_name
+			active				
+		*/
+
+		
+		for ($x = 0; $x <= 19; $x++) {
+			
+			$sql = "INSERT INTO tbl_switches (pin_num, pin_desc, pin_name, board_name, active)
+			VALUES ('$x', 'default_desc', 'default_name', '$board_name', '$active')";
+			$conn->query($sql);
+			
+			//if ($conn->query($sql) === TRUE) {
+				//do nothing	
+			//} 			  
+		}
+		
+		header("location: ?p=4&board_notif=new-board-added-successfull");
+		exit();					
+		
 	} 	
 
 
@@ -503,7 +563,7 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard (<?php echo $ipaddress; ?>)</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Switch Board (<?php echo $ipaddress; ?>)</h1>
                         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
                     </div>
@@ -512,25 +572,22 @@
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>-->
-								
+								<!--
+									<a href="#" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addServer">
+                                        <span class="icon text-white-50">
+                                            <i class="fas fa-flag"></i>
+                                        </span>
+                                        <span class="text">Add Servers</span>										
+                                    </a>									
+																	
 									<a href="#" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addBoard">
                                         <span class="icon text-white-50">
                                             <i class="fas fa-flag"></i>
                                         </span>
                                         <span class="text">Add Boards</span>										
                                     </a>
-									<a href="#" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addWebserver">
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-flag"></i>
-                                        </span>
-                                        <span class="text">Add Webserver</span>										
-                                    </a>
-
-									
-									</br>
 									<div class="my-4"></div>
-									
-
+									-->
 
 
                     <!-- Content Row -->
@@ -543,8 +600,8 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
-                                                Servers (<?php echo $online_webserver + $offline_webserver; ?>)</div>
-                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_webserver ."/". $offline_webserver; ?></div>
+                                                Servers (<?php echo $online_servers + $offline_servers; ?>)</div>
+                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_servers ."/". $offline_servers; ?></div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-server fa-2x text-gray-300"></i>
@@ -561,8 +618,8 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
-                                                Boards (<?php echo $online_webserver + $offline_webserver; ?>)</div>
-                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_webserver ."/". $offline_webserver; ?></div>
+                                                Boards (<?php echo $online_boards + $offline_boards; ?>)</div>
+                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_boards ."/". $offline_boards; ?></div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-microchip fa-2x text-gray-300"></i>											
@@ -579,8 +636,8 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
-                                                Switches (<?php echo $online_webserver + $offline_webserver; ?>)</div>
-                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_webserver ."/". $offline_webserver; ?></div>
+                                                Switches (<?php echo $online_switches + $offline_switches; ?>)</div>
+                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_switches ."/". $offline_switches; ?></div>
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-toggle-on fa-2x text-gray-300"></i>											
@@ -600,14 +657,22 @@
                         For more information about DataTables, please visit the <a target="_blank"
                             href="https://datatables.net">official DataTables documentation</a>.</p>-->
 							
-                    				
+                  				
 					
                    <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h4 class="m-0 font-weight-bold text-primary">Servers</h6>
+						<h4 class="m-0 font-weight-bold text-primary">Servers</h4>							
+						<div class="my-2"><p><?php echo $server_notif; ?></p></div>
 							
-							<div class="my-2"><p><?php echo $server_notif; ?></p></div>
+									<a href="#" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addServer">
+                                        <span class="icon text-white-50">
+                                            <i class="fas fa-flag"></i>
+                                        </span>
+                                        <span class="text">Add Servers</span>										
+                                    </a>							
+							
+							
 							
                         </div>
                         <div class="card-body">
@@ -622,7 +687,8 @@
                                             <th>ip</th>                                            
                                             <th>timezone</th>
                                             <th>htdocs_dir</th>
-                                            <th>conf_dir</th>                                           
+                                            <th>conf_dir</th> 
+											<th>active</th>											
                                             <th>trash</th>
                                         </tr>
                                     </thead>
@@ -636,6 +702,7 @@
                                             <th>timezone</th>
                                             <th>htdocs_dir</th>
                                             <th>conf_dir</th>                                           
+                                            <th>active</th>                                           
                                             <th>trash</th>
                                         </tr>
                                     </tfoot>
@@ -652,7 +719,7 @@
 					conf_dir
 					*/
 
-					$sql = "SELECT * FROM tbl_webservers ";
+					$sql = "SELECT * FROM tbl_servers ";
 					$result = mysqli_query($conn, $sql);
 					$i = 1;
 					if (mysqli_num_rows($result) > 0) 
@@ -667,8 +734,9 @@
 								"<td>". $row["server_ip"] . "</td>" .
 								//"<td>". $row["server_location"] . "</td>" .
 								"<td>". $row["server_timezone"] . "</td>" .
-								"<td>". $row["htdocs_dir"] . "</td>" .
-								"<td>". $row["conf_dir"] . "</td>" .		 
+								"<td>". $row["htdocs_dir"] . "</td>" .									 
+								"<td>". $row["conf_dir"] . "</td>" .
+								"<td>". $row["active"] . "</td>" .									
 								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
 								//"<td><a href='?p=10&server_name=". $row["server_name"] ."' data-servername='alcatraz' data-toggle='modal' data-target='#deleteServerModal' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></a></td>" .		 
 								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-mykey='123456' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .		 
@@ -716,11 +784,25 @@
                    <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h4 class="m-0 font-weight-bold text-primary">Boards</h6>
-							
+                            <h4 class="m-0 font-weight-bold text-primary">Boards</h4>							
 							<div class="my-2"><p><?php echo $board_notif; ?></p></div>
 							
+																<a href="#" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#addBoard">
+                                        <span class="icon text-white-50">
+                                            <i class="fas fa-flag"></i>
+                                        </span>
+                                        <span class="text">Add Boards</span>										
+                                    </a>
+									<div class="my-4"></div>
+							
+							
+							
+							
                         </div>
+						
+
+
+									
                         <div class="card-body">
                             <div class="table-responsive">							
                                 <table class="display table table-bordered" id="" width="100%" cellspacing="0">
@@ -728,27 +810,21 @@
                                         <tr>
                                             <th>id</th>
 											<th>edit</th>
-                                            <th>name</th>
-                                            <th>desc</th>
-                                            <th>ip</th>
-                                            
-                                            <th>timezone</th>
-                                            <!--<th>htdocs_dir</th>
-                                            <th>conf_dir</th>-->                                            
+                                            <th>board_name</th>
+                                            <th>board_desc</th>
+                                            <th>server_name</th>                                            
+                                            <th>active</th>                                                                                     
                                             <th>trash</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
-                                            <th>id</th>
+                                          <th>id</th>
 											<th>edit</th>
-                                            <th>name</th>
-                                            <th>desc</th>
-                                            <th>ip</th>
-                                            
-                                            <th>timezone</th>
-                                            <!--<th>htdocs_dir</th>
-                                            <th>conf_dir</th>-->                                            
+                                            <th>board_name</th>
+                                            <th>board_desc</th>
+                                            <th>server_name</th>                                            
+                                            <th>active</th>                                                                                     
                                             <th>trash</th>
                                         </tr>
                                     </tfoot>
@@ -756,16 +832,16 @@
 
 					<?php
 					/*
-					server_name
-					server_desc
-					server_ip
-					server_location
-					server_timezone
-					htdocs_dir
-					conf_dir
+						<th>id</th>
+						<th>edit</th>
+						<th>board_name</th>
+						<th>board_desc</th>
+						<th>server_name</th>                                            
+						<th>active</th>                                                                                     
+						<th>trash</th>
 					*/
 
-					$sql = "SELECT * FROM tbl_webservers ";
+					$sql = "SELECT * FROM tbl_boards ";
 					$result = mysqli_query($conn, $sql);
 					$i = 1;
 					if (mysqli_num_rows($result) > 0) 
@@ -774,18 +850,12 @@
 							while($row = mysqli_fetch_assoc($result)) {
 								echo "<tr>" . 
 								"<td>". $i++ . "</td>" .
-								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-edit'></i></td>" .				
-								"<td>". $row["server_name"] . "</td>" .
-								"<td>". $row["server_desc"] . "</td>" .
-								"<td>". $row["server_ip"] . "</td>" .
-								//"<td>". $row["server_location"] . "</td>" .
-								"<td>". $row["server_timezone"] . "</td>" .
-								//"<td>". $row["htdocs_dir"] . "</td>" .
-								//"<td>". $row["conf_dir"] . "</td>" .		 
-								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
-								//"<td><a href='?p=10&server_name=". $row["server_name"] ."' data-servername='alcatraz' data-toggle='modal' data-target='#deleteServerModal' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></a></td>" .		 
-								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-mykey='123456' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .		 
-								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-id='1' data-name='Computer' data-duration='255' data-date='27-04-2020' > Edit</a></td>" .
+								"<td><a href='?p=12&board_name=". $row["board_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-edit'></i></td>" .				
+								"<td>". $row["board_name"] . "</td>" .
+								"<td>". $row["board_desc"] . "</td>" .
+								"<td>". $row["server_name"] . "</td>" .								
+								"<td>". $row["active"] . "</td>" .									 
+								"<td><a href='?p=12&board_name=". $row["board_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .																
 								"</tr>";
 							}
 						} 
@@ -829,10 +899,8 @@
                    <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h4 class="m-0 font-weight-bold text-primary">Switches (Pins)</h6>
-							
-							<div class="my-2"><p><?php echo $switch_notif; ?></p></div>
-							
+                            <h4 class="m-0 font-weight-bold text-primary">Switches [Pins]</h4>							
+							<div class="my-2"><p><?php echo $switch_notif; ?></p></div>							
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">							
@@ -841,44 +909,36 @@
                                         <tr>
                                             <th>id</th>
 											<th>edit</th>
-                                            <th>name</th>
-                                            <th>desc</th>
-                                            <th>ip</th>
-                                            
-                                            <th>timezone</th>
-                                            <!--<th>htdocs_dir</th>
-                                            <th>conf_dir</th>-->                                            
-                                            <th>trash</th>
+                                            <th>pin_num</th>
+                                            <th>pin_name</th>
+                                            <th>pin_desc</th>                                            
+                                            <th>board_name</th>                                            
+                                            <th>active</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
                                             <th>id</th>
 											<th>edit</th>
-                                            <th>name</th>
-                                            <th>desc</th>
-                                            <th>ip</th>
-                                            
-                                            <th>timezone</th>
-                                            <!--<th>htdocs_dir</th>
-                                            <th>conf_dir</th>-->                                            
-                                            <th>trash</th>
+                                            <th>pin_num</th>
+                                            <th>pin_name</th>
+                                            <th>pin_desc</th>                                            
+                                            <th>board_name</th>                                            
+                                            <th>active</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>   
 
 					<?php
 					/*
-					server_name
-					server_desc
-					server_ip
-					server_location
-					server_timezone
-					htdocs_dir
-					conf_dir
+						pin_num
+						pin_name
+						pin_desc						
+						board_name
+						active
 					*/
 
-					$sql = "SELECT * FROM tbl_webservers ";
+					$sql = "SELECT * FROM tbl_switches ";
 					$result = mysqli_query($conn, $sql);
 					$i = 1;
 					if (mysqli_num_rows($result) > 0) 
@@ -887,18 +947,12 @@
 							while($row = mysqli_fetch_assoc($result)) {
 								echo "<tr>" . 
 								"<td>". $i++ . "</td>" .
-								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-edit'></i></td>" .				
-								"<td>". $row["server_name"] . "</td>" .
-								"<td>". $row["server_desc"] . "</td>" .
-								"<td>". $row["server_ip"] . "</td>" .
-								//"<td>". $row["server_location"] . "</td>" .
-								"<td>". $row["server_timezone"] . "</td>" .
-								//"<td>". $row["htdocs_dir"] . "</td>" .
-								//"<td>". $row["conf_dir"] . "</td>" .		 
-								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
-								//"<td><a href='?p=10&server_name=". $row["server_name"] ."' data-servername='alcatraz' data-toggle='modal' data-target='#deleteServerModal' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></a></td>" .		 
-								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-mykey='123456' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .		 
-								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-id='1' data-name='Computer' data-duration='255' data-date='27-04-2020' > Edit</a></td>" .
+								"<td><a href='?p=10&board_name=". $row["board_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-edit'></i></td>" .				
+								"<td>". $row["pin_num"] . "</td>" .
+								"<td>". $row["pin_name"] . "</td>" .
+								"<td>". $row["pin_desc"] . "</td>" .
+								"<td>". $row["board_name"] . "</td>" .
+								"<td>". $row["active"] . "</td>" .
 								"</tr>";
 							}
 						} 
@@ -1247,25 +1301,34 @@
                                             <input type="text" class="form-control form-control-user"
                                                 id="exampleInputPassword" placeholder="Board Description..." name="board_desc">
                                         </div>
+                                      										
+
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-user"
-                                                id="exampleInputPassword" placeholder="Board Location..." name="board_location">
-                                        </div>										
-										
+                                                id="exampleInputPassword" placeholder="Server Name..." name="server_name">
+                                        </div>	
+
+										                                        <div class="form-group">
+                                            <input type="text" class="form-control form-control-user"
+                                                id="exampleInputPassword" placeholder="Active..." name="active">
+                                        </div>
 									<!--<div class="my-2"></div>-->
+									<!--<div class="my-2"></div>-->
+									                
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" name="submit_board" >Add Board</button>
+																			
                                 </form>	
 				
 				</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" name="submit" >Add Board</button>
-                </div>
+                
+				<div class="modal-footer"></div>
             </div>
         </div>
     </div>
 
-    <!-- AddWebserver Modal-->
-    <div class="modal fade" id="addWebserver" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <!-- Addservers Modal-->
+    <div class="modal fade" id="addServer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -1313,15 +1376,15 @@
                                                 id="exampleInputPassword" placeholder="Conf Directory..." name="conf_dir">
                                         </div>											
 									<!--<div class="my-2"></div>-->
-									                <div class="modal-footer">
+									                
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" name="submit_server">Add Server</button>
-                </div>
+                    <button type="submit" class="btn btn-primary" name="submit_server" >Add Server</button>
+												
 									
                                 </form>	
 				
 				</div>
-
+				<div class="modal-footer"></div>
             </div>
         </div>
     </div>	
