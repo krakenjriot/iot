@@ -2,15 +2,28 @@
 
 	include("dbconnect.php");
 	
-	//get message
-	if(isset($_GET['webserverinfo'])){
-		$webserverinfo = $_GET['webserverinfo'];
+	//get server_notif
+	if(isset($_GET['server_notif'])){
+		$server_notif = $_GET['server_notif'];
 	} else {
-		$webserverinfo = "";
+		$server_notif = "";
 	}
 	
+	//get board-notif
+	if(isset($_GET['board_notif'])){
+		$board_notif = $_GET['board_notif'];
+	} else {
+		$board_notif = "";
+	}
+
+	//get board-notif
+	if(isset($_GET['switch_notif'])){
+		$switch_notif = $_GET['switch_notif'];
+	} else {
+		$switch_notif = "";
+	}	
 	
-	
+
 	$config = include 'config';
 	$email = $config['email'];
 	$fname = $config['fname'];
@@ -18,8 +31,21 @@
 	$ipaddress = $config['ipaddress'];
 	$fullname = ucfirst($fname)." ".ucfirst($lname);
 	
-	
+	//count online server	
+	$sql = "SELECT * FROM tbl_webservers WHERE active=1";
+	if ($result=mysqli_query($conn,$sql))
+	 {	  
+	  $online_webserver=mysqli_num_rows($result);	  
+	  mysqli_free_result($result);
+	 }
 
+	//count offline server
+	$sql = "SELECT * FROM tbl_webservers WHERE active=0";
+	if ($result=mysqli_query($conn,$sql))
+	 {	  
+	  $offline_webserver=mysqli_num_rows($result);	  
+	  mysqli_free_result($result);
+	 }	
 		
 		
 	if(isset($_POST['submit_server'])){
@@ -31,15 +57,14 @@
 		server_timezone
 		htdocs_dir
 		conf_dir
-		*/
-		
+		*/		
 		$server_name = $_POST['server_name'];
 		$server_desc = $_POST['server_desc'];
 		$server_ip = $_POST['server_ip'];
 		$server_location = $_POST['server_location'];
 		$server_timezone = $_POST['server_timezone'];
-		$htdocs_dir = $_POST['htdocs_dir'];
-		$conf_dir = $_POST['conf_dir'];
+		$htdocs_dir = addslashes($_POST['htdocs_dir']);
+		$conf_dir = addslashes($_POST['conf_dir']);
 
 		$sql = "SELECT * FROM tbl_webservers ";
 		$result = mysqli_query($conn, $sql);
@@ -49,16 +74,49 @@
 
 		if ($conn->query($sql) === TRUE) {
 			//echo "New record created successfully";
-		  	header("location: ?p=4&webserverinfo=new-server-added-successfully");
+		  	header("location: ?p=4&server_notif=new-server-added-successfully");
 			exit();	
 		} else {
 		  echo "Error: " . $sql . "<br>" . $conn->error;
 		}
-
 		//$conn->close();
 	} 
 	
-	
+	if(isset($_POST['submit_board'])){
+		/*
+		server_name
+		server_desc
+		server_ip
+		server_location
+		server_timezone
+		htdocs_dir
+		conf_dir
+		*/		
+		$server_name = $_POST['server_name'];
+		$server_desc = $_POST['server_desc'];
+		$server_ip = $_POST['server_ip'];
+		$server_location = $_POST['server_location'];
+		$server_timezone = $_POST['server_timezone'];
+		$htdocs_dir = addslashes($_POST['htdocs_dir']);
+		$conf_dir = addslashes($_POST['conf_dir']);
+
+		$sql = "SELECT * FROM tbl_webservers ";
+		$result = mysqli_query($conn, $sql);
+
+		$sql = "INSERT INTO tbl_webservers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir)
+		VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir')";
+
+		if ($conn->query($sql) === TRUE) {
+			//echo "New record created successfully";
+		  	header("location: ?p=4&board_notif=new-server-added-successfully");
+			exit();	
+		} else {
+		  echo "Error: " . $sql . "<br>" . $conn->error;
+		}
+		//$conn->close();
+	} 	
+
+
 	
 ?>	
 
@@ -483,86 +541,17 @@
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total Webserver</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
+                                            <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
+                                                Servers (<?php echo $online_webserver + $offline_webserver; ?>)</div>
+                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_webserver ."/". $offline_webserver; ?></div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                            <i class="fas fa-server fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                Total Boards</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-info shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Active Switch
-                                            </div>
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col-auto">
-                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">2</div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="progress progress-sm mr-2">
-                                                        <div class="progress-bar bg-info" role="progressbar"
-                                                            style="width: 50%" aria-valuenow="50" aria-valuemin="0"
-                                                            aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pending Requests Card Example -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                Total Inactive Switch</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">2</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>	
-					
-                    <!-- Content Row -->
-                    <div class="row">
 
                         <!-- Earnings (Monthly) Card Example -->
                         <div class="col-xl-3 col-md-6 mb-4">
@@ -570,12 +559,12 @@
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Online Webserver</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
+                                            <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
+                                                Boards (<?php echo $online_webserver + $offline_webserver; ?>)</div>
+                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_webserver ."/". $offline_webserver; ?></div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                            <i class="fas fa-microchip fa-2x text-gray-300"></i>											
                                         </div>
                                     </div>
                                 </div>
@@ -584,70 +573,26 @@
 
                         <!-- Earnings (Monthly) Card Example -->
                         <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card border-left-primary shadow h-100 py-2">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                Online Boards</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
+                                            <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
+                                                Switches (<?php echo $online_webserver + $offline_webserver; ?>)</div>
+                                            <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_webserver ."/". $offline_webserver; ?></div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                            <i class="fas fa-toggle-on fa-2x text-gray-300"></i>											
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-info shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Offline Webserver
-                                            </div>
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col-auto">
-                                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">2</div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="progress progress-sm mr-2">
-                                                        <div class="progress-bar bg-info" role="progressbar"
-                                                            style="width: 50%" aria-valuenow="50" aria-valuemin="0"
-                                                            aria-valuemax="100"></div>
-															
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pending Requests Card Example -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                Offline Boards</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">2</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>														
+						
+                    </div>	
+					
+                   													
                     <!-- Page Heading -->
                     <!--<h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
@@ -659,9 +604,9 @@
                    <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Servers List</h6>
+                            <h4 class="m-0 font-weight-bold text-primary">Servers</h6>
 							
-							<div class="my-2"><p><?php echo $webserverinfo; ?></p></div>
+							<div class="my-2"><p><?php echo $server_notif; ?></p></div>
 							
                         </div>
                         <div class="card-body">
@@ -673,11 +618,10 @@
 											<th>edit</th>
                                             <th>name</th>
                                             <th>desc</th>
-                                            <th>ip</th>
-                                            
+                                            <th>ip</th>                                            
                                             <th>timezone</th>
-                                            <!--<th>htdocs_dir</th>
-                                            <th>conf_dir</th>-->                                            
+                                            <th>htdocs_dir</th>
+                                            <th>conf_dir</th>                                           
                                             <th>trash</th>
                                         </tr>
                                     </thead>
@@ -687,11 +631,10 @@
 											<th>edit</th>
                                             <th>name</th>
                                             <th>desc</th>
-                                            <th>ip</th>
-                                            
+                                            <th>ip</th>                                            
                                             <th>timezone</th>
-                                            <!--<th>htdocs_dir</th>
-                                            <th>conf_dir</th>-->                                            
+                                            <th>htdocs_dir</th>
+                                            <th>conf_dir</th>                                           
                                             <th>trash</th>
                                         </tr>
                                     </tfoot>
@@ -723,8 +666,8 @@
 								"<td>". $row["server_ip"] . "</td>" .
 								//"<td>". $row["server_location"] . "</td>" .
 								"<td>". $row["server_timezone"] . "</td>" .
-								//"<td>". $row["htdocs_dir"] . "</td>" .
-								//"<td>". $row["conf_dir"] . "</td>" .		 
+								"<td>". $row["htdocs_dir"] . "</td>" .
+								"<td>". $row["conf_dir"] . "</td>" .		 
 								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
 								//"<td><a href='?p=10&server_name=". $row["server_name"] ."' data-servername='alcatraz' data-toggle='modal' data-target='#deleteServerModal' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></a></td>" .		 
 								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-mykey='123456' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .		 
@@ -772,9 +715,9 @@
                    <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Boards List</h6>
+                            <h4 class="m-0 font-weight-bold text-primary">Boards</h6>
 							
-							<div class="my-2"><p><?php echo $webserverinfo; ?></p></div>
+							<div class="my-2"><p><?php echo $board_notif; ?></p></div>
 							
                         </div>
                         <div class="card-body">
@@ -882,6 +825,119 @@
                         </div>
                     </div>	
 					
+                   <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h4 class="m-0 font-weight-bold text-primary">Switches (Pins)</h6>
+							
+							<div class="my-2"><p><?php echo $switch_notif; ?></p></div>
+							
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">							
+                                <table class="display table table-bordered" id="" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>id</th>
+											<th>edit</th>
+                                            <th>name</th>
+                                            <th>desc</th>
+                                            <th>ip</th>
+                                            
+                                            <th>timezone</th>
+                                            <!--<th>htdocs_dir</th>
+                                            <th>conf_dir</th>-->                                            
+                                            <th>trash</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>id</th>
+											<th>edit</th>
+                                            <th>name</th>
+                                            <th>desc</th>
+                                            <th>ip</th>
+                                            
+                                            <th>timezone</th>
+                                            <!--<th>htdocs_dir</th>
+                                            <th>conf_dir</th>-->                                            
+                                            <th>trash</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>   
+
+					<?php
+					/*
+					server_name
+					server_desc
+					server_ip
+					server_location
+					server_timezone
+					htdocs_dir
+					conf_dir
+					*/
+
+					$sql = "SELECT * FROM tbl_webservers ";
+					$result = mysqli_query($conn, $sql);
+					$i = 1;
+					if (mysqli_num_rows($result) > 0) 
+						{
+						  // output data of each row
+							while($row = mysqli_fetch_assoc($result)) {
+								echo "<tr>" . 
+								"<td>". $i++ . "</td>" .
+								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-edit'></i></td>" .				
+								"<td>". $row["server_name"] . "</td>" .
+								"<td>". $row["server_desc"] . "</td>" .
+								"<td>". $row["server_ip"] . "</td>" .
+								//"<td>". $row["server_location"] . "</td>" .
+								"<td>". $row["server_timezone"] . "</td>" .
+								//"<td>". $row["htdocs_dir"] . "</td>" .
+								//"<td>". $row["conf_dir"] . "</td>" .		 
+								"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
+								//"<td><a href='?p=10&server_name=". $row["server_name"] ."' data-servername='alcatraz' data-toggle='modal' data-target='#deleteServerModal' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></a></td>" .		 
+								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-mykey='123456' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .		 
+								//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-id='1' data-name='Computer' data-duration='255' data-date='27-04-2020' > Edit</a></td>" .
+								"</tr>";
+							}
+						} 
+					else 
+						{
+						  echo "0 results";
+						}
+						
+					//mysqli_close($conn);
+					
+					
+										
+					
+					?>
+	
+	
+
+									<!--
+                                        <tr>
+                                            <td>Jonas Alexander</td>
+                                            <td>Developer</td>
+                                            <td>San Francisco</td>
+                                            <td>30</td>
+                                            <td>2010/07/14</td>
+                                            <td>$86,500</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Shad Decker</td>
+                                            <td>Regional Director</td>
+                                            <td>Edinburgh</td>
+                                            <td>51</td>
+                                            <td>2008/11/13</td>
+                                            <td>$183,000</td>
+                                        </tr>  -->                                   
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>	
+
 					
                     <div class="row">
 

@@ -19,6 +19,7 @@
     case '10': include('delete-modal.php'); break;	
     case '11': include('delete-exec.php'); break;	
 	default : include('404.php'); break;    
-	}	
+	}
+	
 ?>
 
