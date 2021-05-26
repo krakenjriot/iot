@@ -15,6 +15,7 @@
 	} else {
 		$board_notif = "";
 	}
+	
 
 	//get board-notif
 	if(isset($_GET['switch_notif'])){
