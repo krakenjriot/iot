@@ -20,6 +20,8 @@
     case '11': include('delete-server-exec.php'); break;
     case '12': include('delete-board-modal.php'); break;	
     case '13': include('delete-board-exec.php'); break;		
+    case '14': include('worker.php'); break;		
+    case '15': include('worker.exec.php'); break;		
 	default : include('404.php'); break;    
 	}
 	

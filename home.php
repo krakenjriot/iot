@@ -254,11 +254,12 @@
   
   if ($conn->query($sql) === TRUE) {
    	header("location: ?p=4&server_notif=update-server-success#mark-server");
-  exit();	
+	exit();	
   } else {		  
    	header("location: ?p=4&server_notif=" . $conn->error . "#mark-server");
-  exit();			  
-  }			
+	exit();			  
+  }	
+  
   }
   
      
@@ -571,6 +572,15 @@
             <i class="fa fa-bars"></i>
             </button>
             <!-- Topbar Search -->
+			
+      <a href="?p=14" target="_blank" class="btn btn-primary btn-icon-split" >
+                <span class="icon text-white-50">
+                <i class="fas fa-flag"></i>
+                </span>
+                <span class="text">Start Worker Page</span>										
+                </a>				
+			
+			<span class="text"> ...worker running</span>				
             <!--
               <form
                   class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
@@ -766,8 +776,17 @@
             </ul>
           </nav>
           <!-- End of Topbar -->
+		  
+		  
+		  
+		  
+		  
           <!-- Begin Page Content -->
           <div class="container-fluid">
+		  
+	            
+		  
+		  
             <!-- Page Heading -->
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
               <h1 class="h3 mb-0 text-gray-800">Switch Board (<?php echo $ipaddress; ?>)</h1>
@@ -966,6 +985,7 @@
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
                         <th>conf_dir</th>
+						<th>active</th>
                         <th>trash</th>
                       </tr>
                     </thead>
@@ -979,6 +999,7 @@
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
                         <th>conf_dir</th>
+                        <th>active</th>
                         <th>trash</th>
                       </tr>
                     </tfoot>
@@ -1021,7 +1042,7 @@
                         			"<td>". $row["server_timezone"] . "</td>" .
                         			"<td>". $row["htdocs_dir"] . "</td>" .									 
                         			"<td>". $row["conf_dir"] . "</td>" .
-                        			//"<td>". $row["active"] . "</td>" .									
+                        			"<td>". $row["active"] . "</td>" .									
                         			//"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
                         			
                         "<td><a href='#' data-toggle='modal' data-target='#delServer' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["server_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
@@ -1713,10 +1734,11 @@
       </div>
     </div>
     <script>
-      $(document).ready(function() {
-        //$('#dataTable').DataTable();
-        $('table.display').DataTable();
-      });
+		$(document).ready(function() {
+			$('table.display').DataTable( {
+				stateSave: true
+			} );
+		} );
     </script>	
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
