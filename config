@@ -5,5 +5,5 @@
   'lname' => 'Villacacan',
   'conf_dir' => 'c:\\tmp\\conf',
   'htdocs_dir' => 'c:\\xampp\\htdocs',
-  'ipaddress' => '192.168.100.2',
+  'ipaddress' => '192.168.100.55',
 );

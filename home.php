@@ -32,6 +32,34 @@
   $ipaddress = $config['ipaddress'];
   $fullname = ucfirst($fname)." ".ucfirst($lname);
   
+  
+ 	/******************************************/
+	/******************************************/	
+	//get ip address
+	$ipaddress = getenv('HTTP_HOST');	
+
+	//save ip address to object
+	$config['ipaddress'] = $ipaddress;
+	
+	//save config to file
+	file_put_contents('config', '<?php return ' . var_export($config, true) . ';');	
+	/******************************************/
+	/******************************************/ 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   //count online server	
   $sql = "SELECT * FROM tbl_servers WHERE active=1";
   if ($result = mysqli_query($conn,$sql))
@@ -858,7 +886,7 @@
                     <div class="row no-gutters align-items-center">
                       <div class="col mr-2">
                         <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
-                          Switches (<?php echo $online_switches + $offline_switches; ?>)
+                          Pins (<?php echo $online_switches + $offline_switches; ?>)
                         </div>
                         <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_switches ."/". $offline_switches; ?></div>
                       </div>
