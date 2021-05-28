@@ -79,8 +79,76 @@
     {	  
      $offline_switches = mysqli_num_rows($result);	  
      mysqli_free_result($result);
-    }	 
-    
+    }
+
+ 
+
+
+	if(isset($_POST['edit_board']))
+	{
+		$board_name = $_POST['board_name'];
+		$board_desc = $_POST['board_desc'];
+		$server_name = $_POST['server_name'];
+		$board_type = $_POST['board_type'];
+
+		$sql = "UPDATE tbl_boards SET ".
+		
+		" board_desc = '$board_desc', ".
+		" server_name = '$server_name', ".
+		" board_type = '$board_type' ".	
+		
+		"WHERE board_name = '$board_name' ";
+
+		if ($conn->query($sql) === TRUE) {
+		  	header("location: ?p=4&board_notif=update-board-success#mark-board");
+			exit();	
+		} else {		  
+		  	header("location: ?p=4&board_notif=" . $conn->error . "#mark-board");
+			exit();			  
+		}			
+   }
+
+
+	if(isset($_POST['edit_server']))
+	{
+		/*
+		server_desc
+		server_ip
+		server_location
+		server_timezone
+		htdocs_dir
+		conf_dir		
+		*/
+		$server_name = $_POST['server_name'];
+		$server_desc = $_POST['server_desc'];
+		$server_ip = $_POST['server_ip'];
+		$server_location = $_POST['server_location'];
+		$server_timezone = $_POST['server_timezone'];		
+		$htdocs_dir = addslashes($_POST['htdocs_dir']);
+		$conf_dir = addslashes($_POST['conf_dir']);		
+		
+
+		$sql = "UPDATE tbl_servers SET ".
+		
+		" server_desc = '$server_desc', ".
+		" server_ip = '$server_ip', ".
+		" server_location = '$server_location', ".
+		" server_timezone = '$server_timezone', ".
+		" htdocs_dir = '$htdocs_dir', ".		
+		" conf_dir = '$conf_dir' ".	
+		
+		"WHERE server_name = '$server_name' ";
+
+		if ($conn->query($sql) === TRUE) {
+		  	header("location: ?p=4&server_notif=update-server-success#mark-server");
+			exit();	
+		} else {		  
+		  	header("location: ?p=4&server_notif=" . $conn->error . "#mark-server");
+			exit();			  
+		}			
+   }
+
+      
     
     
 	if(isset($_POST['delete_server']))
@@ -225,6 +293,8 @@
    
    
    ?>	
+   
+   
 <!DOCTYPE html>
 <html lang="en">
    <head>
@@ -803,6 +873,7 @@
                                     <th>name</th>
                                     <th>desc</th>
                                     <th>ip</th>
+                                    <th>server_location</th>
                                     <th>timezone</th>
                                     <th>htdocs_dir</th>
                                     <th>conf_dir</th>
@@ -816,6 +887,7 @@
                                     <th>name</th>
                                     <th>desc</th>
                                     <th>ip</th>
+                                    <th>server_location</th>
                                     <th>timezone</th>
                                     <th>htdocs_dir</th>
                                     <th>conf_dir</th>
@@ -844,11 +916,21 @@
                                     		while($row = mysqli_fetch_assoc($result)) {
                                     			echo "<tr>" . 
                                     			//"<td>". $i++ . "</td>" .
-                                    			"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-edit'></i></td>" .				
+												"<td><a href='#' data-toggle='modal' data-target='#editServer' class='btn btn-danger btn-circle btn-sm' 
+												data-server_name='" . $row["server_name"] . "' 
+												data-server_desc='" . $row["server_desc"] . "' 
+												data-server_ip='" . $row["server_ip"] . "'
+												data-server_location='" . $row["server_location"] . "'
+												data-server_timezone='" . $row["server_timezone"] . "'
+												data-htdocs_dir='" . $row["htdocs_dir"] . "'
+												data-conf_dir='" . $row["conf_dir"] . "'
+												><i class='fas fa-edit'></i></a></td>" .
+
+												
                                     			"<td>". $row["server_name"] . "</td>" .
                                     			"<td>". $row["server_desc"] . "</td>" .
                                     			"<td>". $row["server_ip"] . "</td>" .
-                                    			//"<td>". $row["server_location"] . "</td>" .
+                                    			"<td>". $row["server_location"] . "</td>" .
                                     			"<td>". $row["server_timezone"] . "</td>" .
                                     			"<td>". $row["htdocs_dir"] . "</td>" .									 
                                     			"<td>". $row["conf_dir"] . "</td>" .
@@ -946,6 +1028,7 @@
                                     	<th>server_name</th>                                            
                                     	<th>active</th>                                                                                     
                                     	<th>trash</th>
+																				
                                     */
                                     
                                     $sql = "SELECT * FROM tbl_boards ";
@@ -957,12 +1040,17 @@
                                     		while($row = mysqli_fetch_assoc($result)) {
                                     			echo "<tr>" . 
                                     			//"<td>". $i++ . "</td>" .
-                                    			"<td><a href='?p=12&board_name=". $row["board_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-edit'></i></td>" .				
+												"<td><a href='#' data-toggle='modal' data-target='#editBoard' class='btn btn-danger btn-circle btn-sm' 
+												data-board_name='" . $row["board_name"] . "' 
+												data-board_desc='" . $row["board_desc"] . "' 
+												data-server_name='" . $row["server_name"] . "'
+												data-board_type='" . $row["board_type"] . "'						
+												><i class='fas fa-edit'></i></a></td>" .											
+												
                                     			"<td>". $row["board_name"] . "</td>" .
                                     			"<td>". $row["board_desc"] . "</td>" .
                                     			"<td>". $row["server_name"] . "</td>" .								
-                                    			"<td>". $row["board_type"] . "</td>" .								
-                                    			//"<td>". $row["active"] . "</td>" .									 
+                                    			"<td>". $row["board_type"] . "</td>" .	
                                     			"<td><a href='#' data-toggle='modal' data-target='#delBoard' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["board_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
                                     			"</tr>";
                                     		}
@@ -1209,6 +1297,189 @@
          })           
       </script>	 	 
 
+      <!-- SERVER -->
+      <div class="modal fade" id="editServer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Edit Server</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+               </div>
+               <div class="modal-body">
+                  <form class="user" action="?p=4" method="post">
+                     
+					 <div class="form-group server_name">
+                        <!--<label for="server_name" class="col-form-label">server_name:</label>-->
+                        <input type="text" class="form-control" id="server_name" name="server_name" hidden>
+                     </div>
+					 
+					 
+                     <div class="form-group server_desc">
+                        <label for="server_desc" class="col-form-label">server_desc:</label>
+                        <textarea class="form-control" id="server_desc" name="server_desc"></textarea>
+                     </div>
+					 
+			         <div class="form-group server_ip">
+                        <label for="server_ip" class="col-form-label">server_ip:</label>
+                        <input class="form-control" id="server_ip" name="server_ip"></input>
+                     </div>
+					 
+					 
+			         <div class="form-group server_location">
+                        <label for="server_location" class="col-form-label">server_location:</label>
+                        <input class="form-control" id="server_location" name="server_location"></input>
+                     </div>	 		 
+					 
+					 
+                     <div class="form-group server_timezone">
+                        <label for="server_timezone">server_timezone:</label>
+                        <select id="server_timezone" class="form-control" name="server_timezone" >
+                           <option value="Asia/Manila">Asia/Manila</option>
+                           <option value="Asia/Riyadh">Asia/Riyadh</option>                         
+                        </select>
+                     </div>
+                    
+					 
+			         <div class="form-group htdocs_dir">
+                        <label for="htdocs_dir" class="col-form-label">htdocs_dir:</label>
+                        <input class="form-control" id="htdocs_dir" name="htdocs_dir" ></input>
+                     </div>
+
+		 
+			         <div class="form-group conf_dir">
+                        <label for="conf_dir" class="col-form-label">conf_dir:</label>
+                        <input class="form-control" id="conf_dir" name="conf_dir" ></input>
+                     </div>	
+					 </br>
+					 
+					 
+                     
+                     <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" name="edit_server" >Submit</button>
+                     </div>
+					 
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+      <script type="text/javascript">
+         $('#editServer').on('show.bs.modal', function (event) {
+           var link = $(event.relatedTarget) // Button that triggered the modal
+           var server_name = link.data('server_name') // Extract info from data-* attributes
+           var server_desc = link.data('server_desc') // Extract info from data-* attributes
+           var server_ip = link.data('server_ip') // Extract info from data-* attributes
+           var server_location = link.data('server_location') // Extract info from data-* attributes
+           var server_timezone = link.data('server_timezone') // Extract info from data-* attributes
+           var htdocs_dir = link.data('htdocs_dir') // Extract info from data-* attributes
+           var conf_dir = link.data('conf_dir') // Extract info from data-* attributes
+		   
+		   var modal = $(this)
+		   
+           modal.find('.modal-title').text('Edit Server ' + server_name)
+           modal.find('.modal-body .server_name input').val(server_name)
+           modal.find('.modal-body .server_desc textarea').val(server_desc)
+           modal.find('.modal-body .server_ip input').val(server_ip)
+           modal.find('.modal-body .server_location input').val(server_location)
+           modal.find('.modal-body .server_timezone input').val(server_timezone)
+           modal.find('.modal-body .htdocs_dir input').val(htdocs_dir)
+           modal.find('.modal-body .conf_dir input').val(conf_dir)
+         })           
+      </script>	 
+	  
+      <!-- BOARD -->
+      <div class="modal fade" id="editBoard" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Edit Board</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+               </div>
+               <div class="modal-body">
+                  <form class="user" action="?p=4" method="post">
+                     <div class="form-group board_name">
+                        <!--<label for="recipient-name" class="col-form-label">board_name:</label>-->                                                
+                        <input type="text" class="form-control" id="board_name" name="board_name" >
+                     </div>
+                     <div class="form-group board_desc">
+                        <label for="message-text" class="col-form-label">board_desc:</label>
+                        <textarea class="form-control" id="board_desc" name="board_desc" ></textarea>
+                     </div>
+					 <!--
+                     <div class="form-group">
+                        <label for="inputState">board_location:</label>
+                        <select id="inputState" class="form-control" name="board_location">
+                           <option>Board1</option>
+                           <option>Board2</option>
+                           <option>Board3</option>
+                           <option>Board4</option>
+                           <option>Board4</option>
+                        </select>
+                     </div>-->
+                     <div class="form-group server_name">
+                        <label for="inputState">server_name:</label>
+                        <select id="inputState" class="form-control" name="server_name">
+                           <option>Board1</option>
+                           <option>Board2</option>
+                           <option>Board3</option>
+                           <option>Board4</option>
+                           <option>Board4</option>
+                        </select>
+                     </div>
+                     <!--
+                        <div class="form-group">
+                           <label for="example-datetime-local-input" >Creation Date</label>
+                           <input class="form-control" type="date" id="example-datetime-local-input" name="creationdate" require>
+                        </div>-->
+                     <fieldset class="form-group board_type">
+                        <legend class="col-form-legend col-sm-2"></legend>
+                        <label for="inputState">board_type:</label>
+                        <div class="col-sm-10">
+                           <div class="form-check">
+                              <label class="form-check-label">
+                              <input class="form-check-input" type="radio" name="board_type" id="board_type" value="uno" checked> Uno
+                              </label>
+                           </div>
+                           <div class="form-check">
+                              <label class="form-check-label">
+                              <input class="form-check-input" type="radio" name="board_type" id="board_type" value="mega"> Mega
+                              </label>
+                           </div>
+                        </div>
+                     </fieldset>
+                     <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" name="edit_board" >Submit</button>
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>	  
+      <script type="text/javascript">
+         $('#editBoard').on('show.bs.modal', function (event) {
+           var link = $(event.relatedTarget) // Button that triggered the modal
+           var board_name = link.data('board_name') // Extract info from data-* attributes
+           var board_desc = link.data('board_desc') // Extract info from data-* attributes
+           var server_name = link.data('server_name') // Extract info from data-* attributes
+           var board_type = link.data('board_type') // Extract info from data-* attributes               
+		   
+		   var modal = $(this)
+		   
+           modal.find('.modal-title').text('Edit board ' + board_name)
+           modal.find('.modal-body .board_name input').val(board_name)
+           modal.find('.modal-body .board_desc textarea').val(board_desc)
+           modal.find('.modal-body .server_name select').val(server_name)
+           modal.find('.modal-body .board_type fieldset').val(board_type)
+	   
+         })           
+      </script>	 	  
+	  
 	  
 	  
       <!-- SERVER -->
