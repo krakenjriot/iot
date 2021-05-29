@@ -1,5 +1,7 @@
 <?php	
   include("dbconnect.php");
+  include("functions.php");
+  
   $online_servers = "";
   $offline_servers = "";
   //get server_notif
@@ -43,7 +45,45 @@
 	
 	//save config to file
 	file_put_contents('config', '<?php return ' . var_export($config, true) . ';');	
+	
+	
+	//check if this ip is default machine
+	//updat default and non-default
+	
+	$sql = "UPDATE tbl_servers SET ". 
+	" _default = 1 ".  
+	"WHERE server_ip = '$ipaddress' ";
+  
+	if ($conn->query($sql) === TRUE) {
+	  //	
+	} 	
+	
+	//check if this ip is default machine
+	$sql = "UPDATE tbl_servers SET ". 
+	" _default = 0 ".  
+	"WHERE server_ip <> '$ipaddress' ";
+  
+	if ($conn->query($sql) === TRUE) {
+	  //	
+	} 		
 	/******************************************/
+  //create server list   
+  $sql = "SELECT server_ip FROM tbl_servers WHERE _default = 1 ";
+  $result = mysqli_query($conn, $sql);
+  if (mysqli_num_rows($result) > 0) 
+  {
+	// output data of each row
+	while($row = mysqli_fetch_assoc($result)) {
+		$server_ip_local = $row['server_ip'];
+	}
+  } 
+  
+
+	if($server_ip_local == $ipaddress) $online_text = "<span class'text-success'>Local</span>";
+	else $online_text = "<span class'text-info'>Remote</span>";
+
+
+  
 	/******************************************/ 
   
   
@@ -94,7 +134,7 @@
    
    
   //count online board	
-  $sql = "SELECT * FROM tbl_switches WHERE active=1";
+  $sql = "SELECT * FROM tbl_pins WHERE active=1";
   if ($result = mysqli_query($conn,$sql))
    {	  
     $online_switches = mysqli_num_rows($result);	  
@@ -102,7 +142,7 @@
    }
   
   //count offline board
-  $sql = "SELECT * FROM tbl_switches WHERE active=0";
+  $sql = "SELECT * FROM tbl_pins WHERE active=0";
   if ($result = mysqli_query($conn,$sql))
    {	  
     $offline_switches = mysqli_num_rows($result);	  
@@ -143,8 +183,7 @@
   
   //create board list   
   $sql = "SELECT board_name FROM tbl_boards ";
-  $result = mysqli_query($conn, $sql);
-  $i = 1;
+  $result = mysqli_query($conn, $sql);  
   $board_name_list_option = "";
   if (mysqli_num_rows($result) > 0) 
   {
@@ -153,12 +192,24 @@
 		$board_name_list_option .= "<option>". $row['board_name'] ."</option>";					
 	}
   } 
-  else 
-	{
-  echo "0 results";
-       }
+  
+
+
+
   
   
+  
+
+
+
+
+
+
+
+
+
+
+
   
   
   
@@ -177,24 +228,50 @@
   $pin_name = $_POST['pin_name'];
   $pin_num = $_POST['pin_num']; 
   $pin_desc = $_POST['pin_desc'];
-  //$board_name = $_POST['board_name'];
   $active = $_POST['active'];
   
-  $sql = "UPDATE tbl_switches SET ".
+  
+  
+  //get board name  
+
+	$sql = "SELECT * FROM tbl_pins WHERE id = '$id' ";	
+	$result = mysqli_query($conn, $sql);  
+	$board_name = "";	
+	if (mysqli_num_rows($result) > 0) 
+		{
+			// output data of each row
+			while($row = mysqli_fetch_assoc($result)) {
+			$board_name = $row['board_name'];
+		}
+	}
+  
+  
+  
+  
+  
+  
+  $sql = "UPDATE tbl_pins SET ".
   
   " pin_desc = '$pin_desc', ".
-  //" board_name = '$board_name', ".
   " pin_name = '$pin_name', ".
   " active = '$active' ".	
   
   "WHERE id = '$id' ";
   
   if ($conn->query($sql) === TRUE) {
+	 
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//update url
+	update_list($board_name);	  
+	  
    	header("location: ?p=4&pin_notif=update-pin-success#mark-pin");
-  exit();	
+	exit();	
   } else {		  
    	header("location: ?p=4&pin_notif=" . $conn->error . "#mark-pin");
-  exit();			  
+	exit();			  
   }			
   }  
   
@@ -227,6 +304,7 @@
   
   if(isset($_POST['edit_board']))
   {
+  $com_port = $_POST['com_port'];
   $board_name = $_POST['board_name'];
   $board_desc = $_POST['board_desc'];
   $server_name = $_POST['server_name'];
@@ -236,18 +314,27 @@
   
   " board_desc = '$board_desc', ".
   " server_name = '$server_name', ".
+  " com_port = '$com_port', ".
   " board_type = '$board_type' ".	
   
   "WHERE board_name = '$board_name' ";
   
-  if ($conn->query($sql) === TRUE) {
-   	header("location: ?p=4&board_notif=update-board-success#mark-board");
-  exit();	
-  } else {		  
-   	header("location: ?p=4&board_notif=" . $conn->error . "#mark-board");
-  exit();			  
-  }			
-  }
+	  if ($conn->query($sql) === TRUE) {
+		//*********** UPDATE UPDATE UPDATE ************************	
+		//*********** UPDATE UPDATE UPDATE ************************	
+		//*********** UPDATE UPDATE UPDATE ************************	
+		//*********** UPDATE UPDATE UPDATE ************************	  
+		//update url
+		update_list($board_name);
+		  
+		  
+		header("location: ?p=4&board_notif=update-board-success#mark-board");
+		exit();	
+	  } else {		  
+		header("location: ?p=4&board_notif=" . $conn->error . "#mark-board");
+		exit();			  
+	  }			
+  }//
   
   
   if(isset($_POST['edit_server']))
@@ -325,7 +412,12 @@
   } 
   
   
-  $sql = "DELETE FROM tbl_switches WHERE board_name='$board_name'";
+  $sql = "DELETE FROM tbl_url WHERE board_name='$board_name'";  
+  if (mysqli_query($conn, $sql)) {
+  //			  
+  } 
+  
+  $sql = "DELETE FROM tbl_pins WHERE board_name='$board_name'";
   
   if (mysqli_query($conn, $sql)) {
    //echo "Record deleted successfully";
@@ -336,7 +428,9 @@
    	header("location: ?p=4&board_notif=".mysqli_error($conn));
   exit();			  
   }
-  }      
+  
+  
+  }//     
    
    
    
@@ -359,6 +453,8 @@
   	$server_timezone = $_POST['server_timezone'];
   	$htdocs_dir = addslashes($_POST['htdocs_dir']);
   	$conf_dir = addslashes($_POST['conf_dir']);
+	
+	$server_name = str_replace(" ","_",$server_name);
   
   	//$sql = "SELECT * FROM tbl_serverss ";
   	//$result = mysqli_query($conn, $sql);
@@ -389,11 +485,14 @@
   	$board_name = $_POST['board_name'];
   	$board_desc = $_POST['board_desc'];
   	$server_name = $_POST['server_name'];
+  	$com_port = $_POST['com_port'];
   	$board_type = $_POST['board_type'];
   	$active = $_POST['active'];
+	
+	$board_name = str_replace(" ","_",$board_name);
   
-  	$sql = "INSERT INTO tbl_boards (board_name, board_desc, server_name, active, board_type)
-  	VALUES ('$board_name', '$board_desc', '$server_name', '$active', '$board_type')";
+  	$sql = "INSERT INTO tbl_boards (board_name, board_desc, server_name, active, board_type, com_port)
+  	VALUES ('$board_name', '$board_desc', '$server_name', '$active', '$board_type', '$com_port')";
   	$conn->query($sql);
   	
   	//if ($conn->query($sql) === TRUE) {
@@ -418,7 +517,7 @@
   	
   	for ($x = 0; $x <= $total_pins; $x++) {
   		
-  		$sql = "INSERT INTO tbl_switches (pin_num, pin_desc, pin_name, board_name, active)
+  		$sql = "INSERT INTO tbl_pins (pin_num, pin_desc, pin_name, board_name, active)
   		VALUES ('$x', 'default_desc', 'default_name', '$board_name', '$active')";
   		$conn->query($sql);
   		
@@ -426,6 +525,17 @@
   			//do nothing	
   		//} 			  
   	}
+	
+	
+	
+	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//update api based
+	update_list($board_name);
+	create_batch_file_monitor($board_name);
   	
   	header("location: ?p=4&board_notif=new-board-added-successfull#mark-board");
   	exit();					
@@ -559,9 +669,9 @@
         </li>
         <!-- Nav Item - Charts -->
         <li class="nav-item">
-          <a class="nav-link" href="#pin">
+          <a class="nav-link" href="#mark-pin">
           <i class="fas fa-fw fa-chart-area"></i>
-          <span>Switches [Pins]</span></a>
+          <span>Pins</span></a>
         </li>
         <!-- Nav Item - Charts -->
         <li class="nav-item">
@@ -817,7 +927,7 @@
 		  
             <!-- Page Heading -->
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
-              <h1 class="h3 mb-0 text-gray-800">Switch Board (<?php echo $ipaddress; ?>)</h1>
+              <h1 class="h3 mb-0 text-gray-800">Switch Board (<?php echo "<b class='text-success'>".$online_text."</b>"; ?>)</h1>
               <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
             </div>
@@ -1013,6 +1123,7 @@
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
                         <th>conf_dir</th>
+						<th>default</th>
 						<th>active</th>
                         <th>trash</th>
                       </tr>
@@ -1027,6 +1138,7 @@
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
                         <th>conf_dir</th>
+                        <th>default</th>
                         <th>active</th>
                         <th>trash</th>
                       </tr>
@@ -1070,6 +1182,7 @@
                         			"<td>". $row["server_timezone"] . "</td>" .
                         			"<td>". $row["htdocs_dir"] . "</td>" .									 
                         			"<td>". $row["conf_dir"] . "</td>" .
+                        			"<td>". $row["_default"] . "</td>" .									
                         			"<td>". $row["active"] . "</td>" .									
                         			//"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
                         			
@@ -1136,20 +1249,28 @@
                     <thead>
                       <tr>
                         <th>edit</th>
+						<th>batch_file</th>
                         <th>board_name</th>
                         <th>board_desc</th>
                         <th>server_name</th>
+                        <th>temp</th>
+                        <th>hum</th>
                         <th>board_type</th>
+						<th>com_port</th>
                         <th>trash</th>
                       </tr>
                     </thead>
                     <tfoot>
                       <tr>
                         <th>edit</th>
+						<th>batch_file</th>
                         <th>board_name</th>
                         <th>board_desc</th>
                         <th>server_name</th>
+                        <th>temp</th>
+                        <th>hum</th>
                         <th>board_type</th>
+						<th>com_port</th>
                         <th>trash</th>
                       </tr>
                     </tfoot>
@@ -1180,11 +1301,16 @@
                         data-board_desc='" . $row["board_desc"] . "' 
                         data-server_name='" . $row["server_name"] . "'
                         data-board_type='" . $row["board_type"] . "'						
+                        data-com_port='" . $row["com_port"] . "'						
                         ><i class='fas fa-edit'></i></a></td>" .											
-                        
+									//<a href="/images/myw3schoolsimage.jpg" download="w3logo">
+                        			"<td><a href='batchfile/" . $row["board_name"] . ".porttymon.bat' download><i class='fas fa-download'></i></a></td>" .
                         			"<td>". $row["board_name"] . "</td>" .
                         			"<td>". $row["board_desc"] . "</td>" .
                         			"<td>". $row["server_name"] . "</td>" .								
+                        			"<td>". $row["temp"] . "</td>" .								
+                        			"<td>". $row["hum"] . "</td>" .								
+                        			"<td>". $row["com_port"] . "</td>" .	
                         			"<td>". $row["board_type"] . "</td>" .	
                         			"<td><a href='#' data-toggle='modal' data-target='#delBoard' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["board_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
                         			"</tr>";
@@ -1228,7 +1354,7 @@
             <!-- DataTales Example -->
             <div class="card shadow mb-4">
               <div class="card-header py-3">
-                <h4 class="m-0 font-weight-bold text-primary">Switches [Pins]</h4>
+                <h4 class="m-0 font-weight-bold text-primary">Pins</h4>
                 <div class="my-2">
                   <p><?php echo $pin_notif; ?></p>
                 </div>
@@ -1266,7 +1392,7 @@
                         	active
                         */
                         
-                        $sql = "SELECT * FROM tbl_switches ";
+                        $sql = "SELECT * FROM tbl_pins ";
                         $result = mysqli_query($conn, $sql);
                         $i = 1;
                         if (mysqli_num_rows($result) > 0) 
@@ -1282,8 +1408,6 @@
 									data-board_name='" . $row["board_name"] . "'														
 									data-active='" . $row["active"] . "'														
 									><i class='fas fa-edit'></i></a></td>" .
-						
-						
                         			"<td>". $row["pin_num"] . "</td>" .
                         			"<td>". $row["pin_name"] . "</td>" .
                         			"<td>". $row["pin_desc"] . "</td>" .
@@ -1538,6 +1662,12 @@
                 </select>
               </div>
 			  
+              <div class="form-group com_port">
+                <label for="com_port" class="col-form-label">com_port:</label>
+                <input type="text" class="form-control" id="com_port" name="com_port" >
+              </div>				  
+			  
+			  
               <div class="form-group board_type">
                 <label for="inputState">board_type:</label>
                 <select id="inputState" class="form-control" name="board_type">				
@@ -1564,9 +1694,11 @@
         var board_desc = link.data('board_desc') // Extract info from data-* attributes
         var server_name = link.data('server_name') // Extract info from data-* attributes
         var board_type = link.data('board_type') // Extract info from data-* attributes  
+        var com_port = link.data('com_port') // Extract info from data-* attributes  
       var modal = $(this)      
         modal.find('.modal-title').text('Edit board ' + board_name)        
         modal.find('.modal-body .board_name input').val(board_name)
+        modal.find('.modal-body .com_port input').val(com_port)
         modal.find('.modal-body .board_desc textarea').val(board_desc)      	
         modal.find('.modal-body .server_name .default-server-name').text(server_name)      
         modal.find('.modal-body .board_type .default_board_type').text(board_type)        
@@ -1693,7 +1825,7 @@
               </div>
               <div class="form-group">
                 <label for="conf_dir" class="col-form-label">conf_dir:</label>
-                <input class="form-control" id="conf_dir" name="conf_dir" ></input>
+                <input class="form-control" id="conf_dir" name="conf_dir" " ></input>
               </div>
               </br>
               <div class="modal-footer">
@@ -1718,23 +1850,27 @@
           <div class="modal-body">
             <form class="user" action="?p=4" method="post">
               <div class="form-group">
-                <label for="recipient-name" class="col-form-label">board_name:</label>                        
+                <label for="board_name" class="col-form-label">board_name:</label>                        
                 <!--<input type="text" class="form-control" id="recipient-name">-->
                 <input type="text" class="form-control" id="board_name" name="board_name" >
               </div>
               <div class="form-group">
-                <label for="message-text" class="col-form-label">board_desc:</label>
+                <label for="board_desc" class="col-form-label">board_desc:</label>
                 <textarea class="form-control" id="board_desc" name="board_desc" ></textarea>
               </div>            
               <div class="form-group">
                 <label for="inputState">server_name:</label>
-                <select id="inputState" class="form-control" name="server_name">
-				<option selected disabled hidden >Choose here</option>
+                <select id="inputState" class="form-control" name="server_name">				
 				<?php 		
 					echo $server_list_option; 
 				?>
                 </select>
               </div>
+
+              <div class="form-group">
+                <label for="com_port" class="col-form-label">com_port:</label>
+                <input type="text" class="form-control" id="com_port" name="com_port" >
+              </div>			  
             
               <fieldset class="form-group">
                 <legend class="col-form-legend col-sm-2"></legend>
@@ -1752,6 +1888,10 @@
                   </div>
                 </div>
               </fieldset>
+			  
+
+			  
+			  
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary" name="submit_board" >Submit</button>
