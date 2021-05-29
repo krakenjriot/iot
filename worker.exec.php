@@ -7,7 +7,7 @@
 	$conf_dir = "c:\portty\conf";
 	$b = "myboard3";
 	
-	$url = "http://". $server_ip . "/iot/api/?b=$b&p=$p&conf_dir=$conf_dir";
+	$url = "http://". $server_ip . "/porrty/api/?b=$b&p=$p&conf_dir=$conf_dir";
 	$content = file_get_contents($url);	
 	//echo $content;
 	
@@ -35,20 +35,7 @@
 	/******************************************/
 	
 	
-	/******************************************/
-	/******************************************/	
-	//get ip address
-	$ipaddress = getenv('HTTP_HOST');	
-	
-	//open config file
-	$config = include 'config';
-	//save ip address to object
-	$config['ipaddress'] = $ipaddress;
-	
-	//save config to file
-	file_put_contents('config', '<?php return ' . var_export($config, true) . ';');	
-	/******************************************/
-	/******************************************/
+
 
 	
 	
