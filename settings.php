@@ -3,6 +3,7 @@
 	$config = include 'config';				
 	$conf_dir = $config['conf_dir'];
 	$htdocs_dir = $config['htdocs_dir'];
+	$refresh_sec = $config['refresh_sec'];
 	$ipaddress = $config['ipaddress'];
 	
 	
@@ -16,6 +17,7 @@
 		$conf_dir_post = $_POST['conf_dir'];
 		$htdocs_dir_post = $_POST['htdocs_dir'];		
 		$ipaddress_post = $_POST['ipaddress'];		
+		$refresh_sec_post = $_POST['refresh_sec'];		
 		
 		
 		$config = include 'config';				
@@ -23,6 +25,7 @@
 		$config['conf_dir']= $conf_dir_post;				
 		$config['htdocs_dir']= $htdocs_dir_post;				
 		$config['ipaddress']= $ipaddress_post;				
+		$config['refresh_sec']= $refresh_sec_post;				
 		
 		file_put_contents('config', '<?php return ' . var_export($config, true) . ';');				
 		header("location: ?p=4&msg=settings-update-successful");
@@ -76,12 +79,11 @@
                                     </div>
                                     <form class="user" action="?p=9" method="post">
                                         <div class="form-group">
-                                            <input type="text" class="form-control form-control-user"
-                                                id="input-conf-dir" aria-describedby="emailHelp"
-                                                placeholder="Enter conf directory..." name="conf_dir" value="<?php echo $conf_dir; ?>">
-                                            <input type="text" class="form-control form-control-user"
+                                            
+											<input type="text" class="form-control form-control-user"
                                                 id="input-htdocs-dir" aria-describedby="emailHelp"
-                                                placeholder="Repeat htdocs directory..." name="htdocs_dir" value="<?php echo $htdocs_dir; ?>">											
+                                                placeholder="refresh_sec..." name="refresh_sec" value="<?php echo $refresh_sec; ?>">	
+												
                                             <input type="text" class="form-control form-control-user"
                                                 id="input-htdocs-dir" aria-describedby="emailHelp"
                                                 placeholder="ip address..." name="ipaddress" value="<?php echo $ipaddress; ?>">											

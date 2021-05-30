@@ -1,3 +1,10 @@
+<?php 
+
+	$config = include 'config';		
+	$refresh_sec = $config['refresh_sec'] * 1000;	
+
+?>
+
 <!DOCTYPE html>
 <html>
 	<head><title></title>
@@ -9,7 +16,7 @@
 				$('#worker').load('?p=15');
 				 }
 				 //setInterval(refresh, 1 * 60 * 1000); //minute interval				 
-				 setInterval(refresh, 3000); //minute interval				 
+				 setInterval(refresh, <?php echo $refresh_sec; ?>); //minute interval				 
 				 refresh();
 			});
 		</script>

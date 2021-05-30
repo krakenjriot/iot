@@ -73,6 +73,7 @@
   //create server list   
   $sql = "SELECT server_ip FROM tbl_servers WHERE _default = 1 ";
   $result = mysqli_query($conn, $sql);
+  $server_ip_local = "";
   if (mysqli_num_rows($result) > 0) 
   {
 	// output data of each row
@@ -102,9 +103,10 @@
   
   
   
-  
+  $offline_servers = "";
+  $online_servers = "";
   //count online server	
-  $sql = "SELECT * FROM tbl_servers WHERE active=1";
+  $sql = "SELECT * FROM tbl_servers WHERE web_service=1";
   if ($result = mysqli_query($conn,$sql))
    {	  
     $online_servers = mysqli_num_rows($result);	  
@@ -112,15 +114,18 @@
    }
   
   //count offline server
-  $sql = "SELECT * FROM tbl_servers WHERE active=0";
+  $sql = "SELECT * FROM tbl_servers WHERE web_service=0";
   if ($result = mysqli_query($conn,$sql))
    {	  
     $offline_servers = mysqli_num_rows($result);	  
     mysqli_free_result($result);
    }	
    
+   
+   $offline_boards = "";
+   $online_boards = "";
   //count online board	
-  $sql = "SELECT * FROM tbl_boards WHERE active=1";
+  $sql = "SELECT * FROM tbl_boards WHERE monitor=1";
   if ($result = mysqli_query($conn,$sql))
    {	  
     $online_boards = mysqli_num_rows($result);	  
@@ -128,15 +133,17 @@
    }
   
   //count offline board
-  $sql = "SELECT * FROM tbl_boards WHERE active=0";
+  $sql = "SELECT * FROM tbl_boards WHERE monitor=0";
   if ($result = mysqli_query($conn,$sql))
    {	  
     $offline_boards = mysqli_num_rows($result);	  
     mysqli_free_result($result);
    }	 
    
+   $online_switches = "";
+   $offline_switches = "";
    
-  //count online board	
+  //count online pins	
   $sql = "SELECT * FROM tbl_pins WHERE active=1";
   if ($result = mysqli_query($conn,$sql))
    {	  
@@ -144,7 +151,7 @@
     mysqli_free_result($result);
    }
   
-  //count offline board
+  //count offline pins
   $sql = "SELECT * FROM tbl_pins WHERE active=0";
   if ($result = mysqli_query($conn,$sql))
    {	  
@@ -179,7 +186,7 @@
   } 
   else 
 	{
-  echo "0 results";
+  //echo "0 results";
        }
                                    	
   
@@ -276,7 +283,7 @@
    	header("location: ?p=4&pin_notif=" . $conn->error . "#mark-pin");
 	exit();			  
   }			
-  }  
+  }//  
   
   
   
@@ -312,12 +319,14 @@
   $board_desc = $_POST['board_desc'];
   $server_name = $_POST['server_name'];
   $board_type = $_POST['board_type'];
+  $refresh_sec = $_POST['refresh_sec'];
   
   $sql = "UPDATE tbl_boards SET ".
   
   " board_desc = '$board_desc', ".
   " server_name = '$server_name', ".
   " com_port = '$com_port', ".
+  " refresh_sec = '$refresh_sec', ".
   " board_type = '$board_type' ".	
   
   "WHERE board_name = '$board_name' ";
@@ -353,6 +362,7 @@
   $server_name = $_POST['server_name'];
   $server_desc = $_POST['server_desc'];
   $server_ip = $_POST['server_ip'];
+  $refresh_sec = $_POST['refresh_sec'];
   $server_location = $_POST['server_location'];
   $server_timezone = $_POST['server_timezone'];		
   $htdocs_dir = addslashes($_POST['htdocs_dir']);
@@ -365,16 +375,14 @@
   " server_ip = '$server_ip', ".
   " server_location = '$server_location', ".
   " server_timezone = '$server_timezone', ".
+  " refresh_sec = '$refresh_sec', ".
   " htdocs_dir = '$htdocs_dir', ".		
   " conf_dir = '$conf_dir' ".	
   
   "WHERE server_name = '$server_name' ";
   
   if ($conn->query($sql) === TRUE) {
-	
-	
-	
-	
+
 	//update_list($board_name);  	
 	  //create server list   
 	$sql = "SELECT * FROM tbl_boards WHERE server_name = '$server_name' ";
@@ -391,13 +399,6 @@
 	{
 	  //do nothing
 	}	
-	
-	
-	
-	
-	
-	
-	
 	
    	header("location: ?p=4&server_notif=update-server-success#mark-server");
 	exit();	
@@ -480,8 +481,10 @@
   	$server_name = $_POST['server_name'];
   	$server_desc = $_POST['server_desc'];
   	$server_ip = $_POST['server_ip'];
+  	$refresh_sec = $_POST['refresh_sec'];
   	$server_location = $_POST['server_location'];
   	$server_timezone = $_POST['server_timezone'];
+  	$refresh_sec = $_POST['refresh_sec'];
   	$htdocs_dir = addslashes($_POST['htdocs_dir']);
   	$conf_dir = addslashes($_POST['conf_dir']);
 	
@@ -490,8 +493,8 @@
   	//$sql = "SELECT * FROM tbl_serverss ";
   	//$result = mysqli_query($conn, $sql);
   
-  	$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir)
-  	VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir')";
+  	$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir, refresh_sec)
+  	VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir', '$refresh_sec')";
   
   	if ($conn->query($sql) === TRUE) {
   		//echo "New record created successfully";
@@ -516,14 +519,16 @@
   	$board_name = $_POST['board_name'];
   	$board_desc = $_POST['board_desc'];
   	$server_name = $_POST['server_name'];
+  	$refresh_sec = $_POST['refresh_sec'];
   	$com_port = $_POST['com_port'];
+  	$refresh_sec = $_POST['refresh_sec'];
   	$board_type = $_POST['board_type'];
   	$active = $_POST['active'];
 	
 	$board_name = str_replace(" ","_",$board_name);
   
-  	$sql = "INSERT INTO tbl_boards (board_name, board_desc, server_name, active, board_type, com_port)
-  	VALUES ('$board_name', '$board_desc', '$server_name', '$active', '$board_type', '$com_port')";
+  	$sql = "INSERT INTO tbl_boards (board_name, board_desc, server_name, active, board_type, com_port, refresh_sec)
+  	VALUES ('$board_name', '$board_desc', '$server_name', '$active', '$board_type', '$com_port', '$refresh_sec')";
   	$conn->query($sql);
   	
   	//if ($conn->query($sql) === TRUE) {
@@ -1146,7 +1151,9 @@
                   <table class="display table table-bordered" id="" width="100%" cellspacing="0">
                     <thead>
                       <tr>
-                        <th>edit</th>
+						<th>edit</th>
+                        <th>web_service</th>
+                        <th>web_page</th>
                         <th>server_name</th>
                         <th>server_desc</th>
                         <th>server_ip</th>
@@ -1154,14 +1161,16 @@
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
                         <th>conf_dir</th>
-						<th>default</th>
-						<th>active</th>
+						<th>refresh_sec</th>
+                        <th>local</th>                        
                         <th>trash</th>
                       </tr>
                     </thead>
                     <tfoot>
                       <tr>
                         <th>edit</th>
+                        <th>web_service</th>
+                        <th>web_page</th>
                         <th>server_name</th>
                         <th>server_desc</th>
                         <th>server_ip</th>
@@ -1169,8 +1178,8 @@
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
                         <th>conf_dir</th>
-                        <th>default</th>
-                        <th>active</th>
+						<th>refresh_sec</th>
+                        <th>local</th>                        
                         <th>trash</th>
                       </tr>
                     </tfoot>
@@ -1203,9 +1212,12 @@
                         data-server_timezone='" . $row["server_timezone"] . "'
                         data-htdocs_dir='" . $row["htdocs_dir"] . "'
                         data-conf_dir='" . $row["conf_dir"] . "'
+                        data-refresh_sec='" . $row["refresh_sec"] . "'
                         ><i class='fas fa-edit'></i></a></td>" .
                         
                         
+                        			"<td>". $row["web_service"] . "</td>" .
+                        			"<td>". $row["web_page"] . "</td>" .
                         			"<td>". $row["server_name"] . "</td>" .
                         			"<td>". $row["server_desc"] . "</td>" .
                         			"<td>". $row["server_ip"] . "</td>" .
@@ -1213,8 +1225,9 @@
                         			"<td>". $row["server_timezone"] . "</td>" .
                         			"<td>". $row["htdocs_dir"] . "</td>" .									 
                         			"<td>". $row["conf_dir"] . "</td>" .
+                        			"<td>". $row["refresh_sec"] . "</td>" .
                         			"<td>". $row["_default"] . "</td>" .									
-                        			"<td>". $row["active"] . "</td>" .									
+                        			//"<td>". $row["active"] . "</td>" .									
                         			//"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
                         			
                         "<td><a href='#' data-toggle='modal' data-target='#delServer' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["server_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
@@ -1226,7 +1239,7 @@
                         	} 
                         else 
                         	{
-                        	  echo "0 results";
+                        	  //echo "0 results";
                         	}
                         	
                         //mysqli_close($conn);
@@ -1279,14 +1292,16 @@
                   <table class="display table table-bordered" id="" width="100%" cellspacing="0">
                     <thead>
                       <tr>
-                        <th>edit</th>
+                      <th>edit</th>
 						<th>batch_file</th>
+						<th>monitor</th>
                         <th>board_name</th>
                         <th>board_desc</th>
                         <th>server_name</th>
                         <th>temp</th>
                         <th>hum</th>
                         <th>board_type</th>
+						<th>refresh_sec</th>
 						<th>com_port</th>
                         <th>trash</th>
                       </tr>
@@ -1295,12 +1310,14 @@
                       <tr>
                         <th>edit</th>
 						<th>batch_file</th>
+						<th>monitor</th>
                         <th>board_name</th>
                         <th>board_desc</th>
                         <th>server_name</th>
                         <th>temp</th>
                         <th>hum</th>
                         <th>board_type</th>
+						<th>refresh_sec</th>
 						<th>com_port</th>
                         <th>trash</th>
                       </tr>
@@ -1327,29 +1344,33 @@
                         		while($row = mysqli_fetch_assoc($result)) {
                         			echo "<tr>" . 
                         			//"<td>". $i++ . "</td>" .
-                        "<td><a href='#' data-toggle='modal' data-target='#editBoard' class='btn btn-danger btn-circle btn-sm' 
-                        data-board_name='" . $row["board_name"] . "' 
-                        data-board_desc='" . $row["board_desc"] . "' 
-                        data-server_name='" . $row["server_name"] . "'
-                        data-board_type='" . $row["board_type"] . "'						
-                        data-com_port='" . $row["com_port"] . "'						
-                        ><i class='fas fa-edit'></i></a></td>" .											
+									"<td><a href='#' data-toggle='modal' data-target='#editBoard' class='btn btn-danger btn-circle btn-sm' 
+									data-board_name='" . $row["board_name"] . "' 
+									data-board_desc='" . $row["board_desc"] . "' 
+									data-server_name='" . $row["server_name"] . "'
+									data-board_type='" . $row["board_type"] . "'						
+									data-com_port='" . $row["com_port"] . "'						
+									data-refresh_sec='" . $row["refresh_sec"] . "'						
+									><i class='fas fa-edit'></i></a></td>" .											
 									//<a href="/images/myw3schoolsimage.jpg" download="w3logo">
                         			"<td><a href='batchfile/" . $row["board_name"] . ".porttymon.bat' download><i class='fas fa-download'></i></a></td>" .
+                        			"<td>". $row["monitor"] . "</td>" .
                         			"<td>". $row["board_name"] . "</td>" .
                         			"<td>". $row["board_desc"] . "</td>" .
                         			"<td>". $row["server_name"] . "</td>" .								
                         			"<td>". $row["temp"] . "</td>" .								
-                        			"<td>". $row["hum"] . "</td>" .								
+                        			"<td>". $row["hum"] . "</td>" .	
+									"<td>". $row["board_type"] . "</td>" .									
+                        			"<td>". $row["refresh_sec"] . "</td>" .	
                         			"<td>". $row["com_port"] . "</td>" .	
-                        			"<td>". $row["board_type"] . "</td>" .	
+                        				
                         			"<td><a href='#' data-toggle='modal' data-target='#delBoard' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["board_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
                         			"</tr>";
                         		}
                         	} 
                         else 
                         	{
-                        	  echo "0 results";
+                        	  //echo "0 results";
                         	}
                         	
                         //mysqli_close($conn);
@@ -1449,7 +1470,7 @@
                         	} 
                         else 
                         	{
-                        	  echo "0 results";
+                        	  //echo "0 results";
                         	}
                         	
                         //mysqli_close($conn);
@@ -1628,6 +1649,12 @@
                 <label for="conf_dir" class="col-form-label">conf_dir:</label>
                 <input class="form-control" id="conf_dir" name="conf_dir" ></input>
               </div>
+			  
+              <div class="form-group refresh_sec">
+                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
+                <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
+              </div>			  
+			  
               </br>
               </br>
               <div class="modal-footer">
@@ -1649,6 +1676,7 @@
         var server_timezone = link.data('server_timezone') // Extract info from data-* attributes
         var htdocs_dir = link.data('htdocs_dir') // Extract info from data-* attributes
         var conf_dir = link.data('conf_dir') // Extract info from data-* attributes
+        var refresh_sec = link.data('refresh_sec') // Extract info from data-* attributes
       
       var modal = $(this)
       
@@ -1660,6 +1688,7 @@
         modal.find('.modal-body .server_timezone .default_server_timezone').text(server_timezone)
         modal.find('.modal-body .htdocs_dir input').val(htdocs_dir)
         modal.find('.modal-body .conf_dir input').val(conf_dir)
+        modal.find('.modal-body .refresh_sec input').val(refresh_sec)
       })           
     </script>
 	
@@ -1698,6 +1727,10 @@
                 <input type="text" class="form-control" id="com_port" name="com_port" >
               </div>				  
 			  
+              <div class="form-group refresh_sec">
+                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
+                <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
+              </div>
 			  
               <div class="form-group board_type">
                 <label for="inputState">board_type:</label>
@@ -1726,10 +1759,12 @@
         var server_name = link.data('server_name') // Extract info from data-* attributes
         var board_type = link.data('board_type') // Extract info from data-* attributes  
         var com_port = link.data('com_port') // Extract info from data-* attributes  
+        var refresh_sec = link.data('refresh_sec') // Extract info from data-* attributes  
       var modal = $(this)      
         modal.find('.modal-title').text('Edit board ' + board_name)        
         modal.find('.modal-body .board_name input').val(board_name)
         modal.find('.modal-body .com_port input').val(com_port)
+        modal.find('.modal-body .refresh_sec input').val(refresh_sec)
         modal.find('.modal-body .board_desc textarea').val(board_desc)      	
         modal.find('.modal-body .server_name .default-server-name').text(server_name)      
         modal.find('.modal-body .board_type .default_board_type').text(board_type)        
@@ -1856,9 +1891,14 @@
               </div>
               <div class="form-group">
                 <label for="conf_dir" class="col-form-label">conf_dir:</label>
-                <input class="form-control" id="conf_dir" name="conf_dir" " ></input>
+                <input class="form-control" id="conf_dir" name="conf_dir"  ></input>
               </div>
-              </br>
+
+              <div class="form-group">
+                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
+                <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
+              </div>
+             
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary" name="submit_server" >Submit</button>
@@ -1920,7 +1960,10 @@
                 </div>
               </fieldset>
 			  
-
+              <div class="form-group">
+                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
+                <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
+              </div>
 			  
 			  
               <div class="modal-footer">
