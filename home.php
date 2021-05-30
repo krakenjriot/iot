@@ -12,6 +12,8 @@
   }
   
   
+  
+  
   //get board-notif
   if(isset($_GET['board_notif'])){
   	$board_notif = $_GET['board_notif'];
