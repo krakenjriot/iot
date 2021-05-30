@@ -21,8 +21,10 @@
 			echo "porttymon for myboard1 offline </br>";
 			echo "porttymon for myboard2 online </br>";
 			
+			
 
 			echo "</pre>";
+
 
 
 
