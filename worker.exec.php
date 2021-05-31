@@ -78,10 +78,9 @@
 				///////////////////////////////////////////////
 				///////////////////////////////////////////////
 				///////////////////////////////////////////////						
-			
+				if(empty($response)){
 				//myboard1,22:05:45,29.90,22.00,0ld7vcxm72c2g3yz,Asia/Riyadh,0
 				$response_arr=str_getcsv($response);
-
 				$board_name2 = $response_arr[0];
 				$dt = $response_arr[1];	
 				$temp = $response_arr[2];
@@ -89,6 +88,15 @@
 				$hashed = $response_arr[4];
 				$tz = $response_arr[5];
 				$monitor = $response_arr[6];
+				} else {
+				$board_name2 = "";
+				$dt = "";
+				$temp = "";
+				$hum = "";
+				$hashed = "";
+				$tz = "";
+				$monitor = "";			//
+				}
 
 				if($monitor){
 					echo "</br>porttymon.exe process for $board_name is running @($server_ip)";	

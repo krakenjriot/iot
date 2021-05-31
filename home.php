@@ -2,6 +2,30 @@
   include("dbconnect.php");
   include("functions.php");
   
+  
+  
+ 
+//chart
+//$connect = mysqli_connect("localhost", "root", "", "testing");
+$query = "SELECT * FROM tbl_dht";
+$result = mysqli_query($conn, $query);
+$chart_data = '';
+while($row = mysqli_fetch_array($result))
+{
+$chart_data .= "{ date:'".$row["dt"]."', temp:".$row["temp"].", hum:".$row["hum"].", hum:".$row["hum"]."}, ";
+}
+$chart_data = substr($chart_data, 0, -2);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   $online_servers = "";
   $offline_servers = "";
   //get server_notif
@@ -605,6 +629,31 @@
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="css/mycss.css" rel="stylesheet">
+	
+	
+	
+	
+	
+	
+	
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
   </head>
   <body id="page-top">
     <!-- Page Wrapper -->
@@ -1086,8 +1135,9 @@
                   </div>
                   <!-- Card Body -->
                   <div class="card-body">
-                    <div class="chart-area">
+                    <div class="chart-area">								
                       <canvas id="myAreaChart"></canvas>
+                                        
                     </div>
                   </div>
                 </div>
@@ -1122,6 +1172,10 @@
                 </div>
               </div>
             </div>
+			
+			<div id="chart"></div>    
+			
+			
             <!-- Page Heading -->
             <!--<h1 class="h3 mb-2 text-gray-800">Tables</h1>
               <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
@@ -1416,22 +1470,23 @@
                   <table class="display table table-bordered" id="" width="100%" cellspacing="0">
                     <thead>
                       <tr>
-                        <th>edit</th>
+                      <th>edit</th>
+						<th>active</th>
+						<th>board_name</th>
                         <th>pin_num</th>
                         <th>pin_name</th>
-                        <th>pin_desc</th>
-                        <th>board_name</th>
-                        <th>active</th>
+                        <th>pin_desc</th>    
                       </tr>
                     </thead>
                     <tfoot>
                       <tr>
                         <th>edit</th>
+						<th>active</th>
+						<th>board_name</th>
                         <th>pin_num</th>
                         <th>pin_name</th>
-                        <th>pin_desc</th>
-                        <th>board_name</th>
-                        <th>active</th>
+                        <th>pin_desc</th>                        
+                        
                       </tr>
                     </tfoot>
                     <tbody>
@@ -1460,11 +1515,13 @@
 									data-board_name='" . $row["board_name"] . "'														
 									data-active='" . $row["active"] . "'														
 									><i class='fas fa-edit'></i></a></td>" .
+									"<td>". $row["active"] . "</td>" .
+									"<td>". $row["board_name"] . "</td>" .
                         			"<td>". $row["pin_num"] . "</td>" .
                         			"<td>". $row["pin_name"] . "</td>" .
                         			"<td>". $row["pin_desc"] . "</td>" .
-                        			"<td>". $row["board_name"] . "</td>" .
-                        			"<td>". $row["active"] . "</td>" .
+                        			
+                        			
                         			"</tr>";
                         		}
                         	} 
@@ -1982,6 +2039,20 @@
 			} );
 		} );
     </script>	
+	
+	<script>
+	Morris.Bar({
+	 element : 'chart',
+	 data:[<?php echo $chart_data; ?>],
+	 xkey:'date',
+	 ykeys:['profit', 'purchase', 'sale'],
+	 labels:['Profit', 'Purchase', 'Sale'],
+	 hideHover:'auto',
+	 stacked:true
+	});
+	</script>	
+	
+	
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
     <!-- Page level plugins -->
