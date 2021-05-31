@@ -6,20 +6,28 @@
 		$htdocs_dir = $_GET['htdocs_dir'];					
 		$conf_dir = $_GET['conf_dir'];					
 		$board_refresh_sec = $_GET['board_refresh_sec'];					
-		file_put_contents($conf_dir ."\\". $board_name .".output", $pins);
 		
+		
+		
+		
+		
+		file_put_contents($conf_dir ."\\". $board_name .".output", $pins);		
 		$dht_file = $conf_dir ."\\". $board_name .".dht";		
 		
+		if(!file_exists($dht_file)) {
+			//touch($dht_file, "0,0");
+			file_put_contents($dht_file, "0,0");	
+		}
 		
-		if(file_exists($dht_file)){
+	
 			//$file_last_modified = filemtime($dht_file); 
 			//echo "</br>Last modified " . date("l, dS F, Y, h:ia", $file_last_modified)."\n";
 		
 			$diff = time()-filemtime($dht_file);
 			
-			//echo "diff ".$diff;
+			//echo "diff ".$diff."</br>";
 			//echo "</br>";
-			//echo "board_refresh_sec ".$board_refresh_sec;
+			//echo "board_refresh_sec ".$board_refresh_sec."</br>";
 			
 			//value is zero then set it to 3 secs
 			//if(!$board_refresh_sec) $board_refresh_sec = 3;
@@ -49,12 +57,7 @@
 			//echo "return porttysen.exe input file";
 			
 			echo "$board_name,$dt,$dht_csv,0ld7vcxm72c2g3yz,$server_timezone,$monitor";				
-		} else {
-			echo "porttymon.exe not running!";	
-		}
-		
-		
-		
+			
 	
 	}
 	

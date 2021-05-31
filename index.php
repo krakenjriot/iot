@@ -22,6 +22,7 @@
     case '13': include('delete-board-exec.php'); break;		
     case '14': include('worker.php'); break;		
     case '15': include('worker.exec.php'); break;		
+    case '16': include('get_data.php'); break;		
 	default : include('404.php'); break;    
 	}
 	

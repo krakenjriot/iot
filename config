@@ -7,4 +7,5 @@
   'htdocs_dir' => NULL,
   'ipaddress' => '192.168.100.2',
   'refresh_sec' => '3',
+  'board_name_monitored' => 'myboard1',
 );

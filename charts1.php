@@ -1,19 +1,16 @@
-<?php 
-//index.php
-$connect = mysqli_connect("localhost", "root", "", "test2");
-$query = "SELECT * FROM account";
+<?php
+
+$connect = mysqli_connect("localhost", "host", "", "_data");
+$query = "SELECT * FROM Datas";
 $result = mysqli_query($connect, $query);
 $chart_data = '';
+
 while($row = mysqli_fetch_array($result))
 {
- $chart_data .= "{ year:'".$row["year"]."', profit:".$row["profit"].", purchase:".$row["purchase"].", sale:".$row["sale"]."}, ";
+    $chart_data .= "{ ID:'".$row["ID"]."', Name:".$row["Name"].", Wrongs:".$row["Wrongs"].", Rights:".$row["Rights"].", Percentage:".$row["Percentage"].", Age:".$row["Age"]."}, ";
 }
-$chart_data = substr($chart_data, 0, -2);
-
-//https://www.kvcodes.com/2017/07/morris-js-dynamic-data-example-php-mysql/
-
+$chart_data = substr($chart_data, 0);
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -23,27 +20,28 @@ $chart_data = substr($chart_data, 0, -2);
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
-  
+
  </head>
  <body>
   <br /><br />
   <div class="container" style="width:900px;">
-   <h2 align="center">Morris.js chart with PHP & Mysql</h2>
-   <h3 align="center">Last 10 Years Profit, Purchase and Sale Data</h3>   
+   <h2 align="center">MySQL</h2>
+   <h3 align="center">Data</h3>   
    <br /><br />
    <div id="chart"></div>
   </div>
  </body>
 </html>
 
+
 <script>
-Morris.Bar({
- element : 'chart',
- data:[<?php echo $chart_data; ?>],
- xkey:'year',
- ykeys:['profit', 'purchase', 'sale'],
- labels:['Profit', 'Purchase', 'Sale'],
- hideHover:'auto',
- stacked:true
-});
+	$(document).ready(function () { 
+	Morris.Bar({
+	  element: 'chart',
+	  data:[<?php echo $chart_data; ?>],
+	  xkey: 'ID',
+	  ykeys: ['Wrongs', 'Rights'],
+	  labels: ['Wrongs', 'Rights'],
+	});
+	});
 </script>

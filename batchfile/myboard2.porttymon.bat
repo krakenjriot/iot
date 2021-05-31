@@ -9,7 +9,7 @@
 
 	cd ..
 	rem timeout /t 5 /nobreak
-	porttymon.exe myboard2  3 
+	porttymon.exe myboard2 com11 3 
 
 	pause
 	

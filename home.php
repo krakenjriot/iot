@@ -11,7 +11,11 @@
   	$server_notif = "";
   }
   
-  
+   if(isset($_GET['monitor_notif'])){
+  	$monitor_notif = $_GET['monitor_notif'];
+  } else {
+  	$monitor_notif = "";
+  } 
   
   
   //get board-notif
@@ -35,6 +39,7 @@
   $fname = $config['fname'];
   $lname = $config['lname'];
   $ipaddress = $config['ipaddress'];
+  $board_name_monitored = $config['board_name_monitored'];
   $fullname = ucfirst($fname)." ".ucfirst($lname);
   
   
@@ -207,6 +212,43 @@
 
 
   
+  if(isset($_POST['selectBoardToMonitor']))
+  {
+		$board_name = $_POST['board_name'];
+		
+		
+		$config = include 'config';				
+		$config['board_name_monitored']= $board_name;
+		file_put_contents('config', '<?php return ' . var_export($config, true) . ';');	 		
+		$monitor = 0;
+		
+		//check if data is available
+		  $sql = "SELECT monitor FROM tbl_boards WHERE board_name = '$board_name' ";
+		  $result = mysqli_query($conn, $sql);
+		  
+		  if (mysqli_num_rows($result) > 0) 
+		  {						
+				while($row = mysqli_fetch_assoc($result)) {
+				$monitor = $row['monitor'];
+				}				
+		  } 
+
+
+		  if ($monitor) 
+		  {		
+				header("location: ?p=4&monitor_notif=board-monitor-running&$monitor#mark-monitor");
+				exit();			
+		  } else {
+				header("location: ?p=4&monitor_notif=board-monitor-not-running&$monitor#mark-monitor");
+				exit();		  
+		  } 		  
+	
+	  
+  }//
+  
+	
+		  
+	
   
   
 
@@ -605,6 +647,65 @@
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="css/mycss.css" rel="stylesheet">
+	
+  <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+  <style>
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+ 
+    #myChart {
+      margin: 0 auto;
+      height: 380px;
+      width: 98%;
+      box-shadow: 5px 5px 5px #eee;
+      background-color: #fff;
+      border: 1px solid #eee;
+      display: flex;
+      flex-flow: column wrap;
+    }
+ 
+    .controls--container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+ 
+    .controls--container button {
+      margin: 40px;
+      padding: 15px;
+      background-color: #FF4081;
+      border: none;
+      color: #fff;
+      box-shadow: 5px 5px 5px #eee;
+      font-size: 16px;
+      font-family: Roboto;
+      cursor: pointer;
+      transition: .1s;
+    }
+ 
+    .controls--container button:hover {
+      opacity: .9;
+    }
+ 
+    /*button movement*/
+ 
+    .controls--container button:active {
+      border-width: 0 0 2px 0;
+      transform: translateY(8px);
+      opacity: 0.9;
+    }
+ 
+    .zc-ref {
+      display: none;
+    }
+  </style>
+	
+	
   </head>
   <body id="page-top">
     <!-- Page Wrapper -->
@@ -1062,11 +1163,57 @@
                 </div>
               </div>
             </div>
+			
+			
+
+
+
+
+
+
+
+			<h2 id="mark-monitor"></h2>
+            <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                <h4 class="m-0 font-weight-bold text-primary">Realtime Health Monitoring [<?php echo $board_name_monitored; ?>]</h4>
+                <div class="my-2">
+                  <p><?php echo $monitor_notif; ?></p>
+                </div>
+                <a href="#" class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#selectBoardToMonitor" " >
+                <span class="icon text-white-50">
+                <i class="fas fa-flag"></i>
+                </span>
+                <span class="text">Select Board</span>										
+                </a>
+              </div>
+
+
+
+
+
+
+
+			
+			
+            <div class="row">
+			<div class="col-lg-12 mb-4">
+			<div class="card shadow mb-4">			
+				<div id="myChart">
+					<a class="zc-ref" href="https://www.zingchart.com">Powered by ZingChart</a>
+				</div>		  
+			</div>	
+			</div>	
+			</div>	
+
+
+				
+			
+			<!--
             <div class="row">
               <div class="col-lg-6 mb-4">
                 <div class="card shadow mb-4">
                   <!-- Card Header - Dropdown -->
-                  <div
+                  <!--<div
                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Max Temperature</h6>
                     <div class="dropdown no-arrow">
@@ -1085,17 +1232,20 @@
                     </div>
                   </div>
                   <!-- Card Body -->
-                  <div class="card-body">
+                  <!--<div class="card-body">
                     <div class="chart-area">
                       <canvas id="myAreaChart"></canvas>
-                    </div>
+                                           
+                    </div>	
                   </div>
                 </div>
               </div>
-              <div class="col-lg-6 mb-4">
+			    <!-- CHART CONTAINER -->
+	  
+              <!--<div class="col-lg-6 mb-4">
                 <div class="card shadow mb-4">
                   <!-- Card Header - Dropdown -->
-                  <div
+                  <!--<div
                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Max Humidity</h6>
                     <div class="dropdown no-arrow">
@@ -1114,14 +1264,14 @@
                     </div>
                   </div>
                   <!-- Card Body -->
-                  <div class="card-body">
+                  <!--<div class="card-body">
                     <div class="chart-area">
                       <canvas id="myAreaChart2"></canvas>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </div>-->
             <!-- Page Heading -->
             <!--<h1 class="h3 mb-2 text-gray-800">Tables</h1>
               <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
@@ -1466,8 +1616,6 @@
                         			"<td>". $row["pin_num"] . "</td>" .
                         			"<td>". $row["pin_name"] . "</td>" .
                         			"<td>". $row["pin_desc"] . "</td>" .
-                        			
-                        			
                         			"</tr>";
                         		}
                         	} 
@@ -1544,6 +1692,44 @@
         </div>
       </div>
     </div>
+	
+    <!-- SERVER -->
+    <div class="modal fade" id="selectBoardToMonitor" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Select Board to Monitor</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form class="user" action="?p=4" method="post">
+             
+			  
+              <div class="form-group board_name">
+                <label for="inputState">board_name:</label>
+                <select id="inputState" class="form-control" name="board_name">	
+				
+				<option class="default-server-name" selected ><?php echo $board_name_monitored; ?></option>
+				<?php 		
+					echo $board_name_list_option; 
+				?>
+                </select>
+              </div>			  
+			  
+			  
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" name="selectBoardToMonitor" >Monitor</button>					 
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>	
+	
+	
+	
+	
     <!-- SERVER -->
     <div class="modal fade" id="delServer" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -1567,6 +1753,11 @@
         </div>
       </div>
     </div>
+	
+	
+	
+	
+	
     <script type="text/javascript">
       $('#delServer').on('show.bs.modal', function (event) {
         var link = $(event.relatedTarget) // Button that triggered the modal
@@ -1984,15 +2175,203 @@
 				stateSave: true
 			} );
 		} );
-    </script>	
+    </script>
+
+
+  <script>
+    ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "b55b025e438fa8a98e32482b5f768ff5"]; //real-time feed random math function
+    function realTimeFeed(callback) {
+      var tick = {};
+      tick.plot0 = parseInt(10 + 90 * Math.random(), 10);
+      tick.plot1 = parseInt(10 + 90 * Math.random(), 10);
+      callback(JSON.stringify(tick));
+    };
+ 
+    // define top level feed control functions
+    function clearGraph() {
+      zingchart.exec('myChart', 'clearfeed')
+    }
+ 
+    function startGraph() {
+      zingchart.exec('myChart', 'startfeed');
+    }
+ 
+    function stopGraph() {
+      zingchart.exec('myChart', 'stopfeed');
+    }
+ 
+    function randomizeInterval() {
+      let interval = Math.floor(Math.random() * (1000 - 50)) + 50;
+      zingchart.exec('myChart', 'setinterval', {
+        interval: interval,
+        update: false
+      });
+	  
+      output.textContent = 'Interval set to: ' + interval;
+    }
+    // window:load event for Javascript to run after HTML
+    // because this Javascript is injected into the document head
+    window.addEventListener('load', () => {
+      // Javascript code to execute after DOM content
+ 
+      //clear start stop click events
+      //document.getElementById('clear').addEventListener('click', clearGraph);
+      //document.getElementById('start').addEventListener('click', startGraph);
+      //document.getElementById('stop').addEventListener('click', stopGraph);
+      //document.getElementById('random').addEventListener('click', randomizeInterval);
+ 
+      // full ZingChart schema can be found here:
+      // https://www.zingchart.com/docs/api/json-configuration/
+      const myConfig = {
+        //chart styling
+        type: 'line',
+	legend: {
+
+  },	
+    
+	  
+		
+        globals: {
+          fontFamily: 'Roboto',
+        },
+        /*backgroundColor: '#fff',
+        title: {
+          backgroundColor: '#1565C0',
+          text: 'Temp (°C)| Hum (%)',
+          color: '#fff',
+          height: '30x'
+        },*/
+		
+		
+        plotarea: {
+          //marginTop: '80px',
+		  'adjust-layout': true /* For automatic margin adjustment. */
+			//'margin-left': "dynamic",
+			//'margin-bottom': "dynamic"	  
+		  
+        },
+		
+  
+		utc: true, /* Force UTC time. */
+
+ 	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+        crosshairX: {
+          lineWidth: 4,
+          lineStyle: 'dashed',
+          lineColor: '#424242',
+          marker: {
+            visible: true,
+            size: 9
+          },
+          plotLabel: {
+            backgroundColor: '#fff',
+            borderColor: '#e3e3e3',
+            borderRadius: 5,
+            padding: 15,
+            fontSize: 15,
+            shadow: true,
+            shadowAlpha: 0.2,
+            shadowBlur: 5,
+            shadowDistance: 4
+          },
+          scaleLabel: {
+            backgroundColor: '#424242',
+            padding: 5
+          }
+        },
+		
+		
+        scaleY: {
+          guide: {
+            visible: true,
+			//label: { text: 'Temperature (°C)' }
+          },
+        },
+		
+	
+		
+        tooltip: {
+          visible: false
+        },
+        //real-time feed
+        refresh: {
+          type: 'feed',
+          transport: 'http',
+          //url: 'https://us-central1-zingchart-com.cloudfunctions.net/public_http_feed?min=0&max=40&plots=1',
+          url:'?p=16',
+		  interval: 3000,
+          maxTicks: 16,
+          adjustScale: false,
+          resetTimeout: 1000
+        },
+        plot: {
+          shadow: 1,
+          shadowColor: '#eee',
+          shadowDistance: '10px',
+          lineWidth: 5,
+          hoverState: {
+            visible: false
+          },
+          marker: {
+            visible: true
+          },
+          aspect: 'spline'
+        },
+		
+		
+        series: [{
+          values: [],
+          lineColor: '#2196F3',
+          text: 'Temperature',
+		  'legend-text': "Temperature"
+        }, {
+          values: [],
+          lineColor: '#ff9800',
+          text: 'Humidity',
+		  'legend-text': "Humidity"
+        }]
+      };
+ 
+      // render chart with width and height to
+      // fill the parent container CSS dimensions
+      zingchart.render({
+        id: 'myChart',
+        data: myConfig,
+        height: '100%',
+        width: '100%',
+      });
+    });
+  </script>
+
+
+
+
+
+
+
+
+	
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
     <!-- Page level plugins -->
-    <script src="vendor/chart.js/Chart.min.js"></script>
+    <!--<script src="vendor/chart.js/Chart.min.js"></script>-->
     <!-- Page level custom scripts -->
-    <script src="js/demo/chart-area-demo.js"></script>
+    <!--<script src="js/demo/chart-area-demo.js"></script>
     <script src="js/demo/chart-area-demo2.js"></script>
-    <script src="js/demo/chart-pie-demo.js"></script>
+    <script src="js/demo/chart-pie-demo.js"></script>-->
     <!-- Page level plugins -->
     <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
