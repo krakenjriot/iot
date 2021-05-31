@@ -40,7 +40,15 @@
   $lname = $config['lname'];
   $ipaddress = $config['ipaddress'];
   $board_name_monitored = $config['board_name_monitored'];
+  $refresh_sec = $config['refresh_sec'];
   $fullname = ucfirst($fname)." ".ucfirst($lname);
+  
+  
+  if(empty($refresh_sec)){
+	$config['refresh_sec'] = '3';	
+	//save config to file
+	file_put_contents('config', '<?php return ' . var_export($config, true) . ';');		  
+  }
   
   
  	/******************************************/
@@ -1200,7 +1208,14 @@
 			<div class="card shadow mb-4">			
 				<div id="myChart">
 					<a class="zc-ref" href="https://www.zingchart.com">Powered by ZingChart</a>
-				</div>		  
+				</div>	
+  <div class="controls--container">
+    <button id="clear">Clear</button>
+    <button id="stop">Stop</button>
+    <button id="start">Start</button>
+    <!--<button id="random">Randomize Interval</button>-->
+    <span id="output"></span>
+  </div>				
 			</div>	
 			</div>	
 			</div>	
@@ -2215,9 +2230,9 @@
       // Javascript code to execute after DOM content
  
       //clear start stop click events
-      //document.getElementById('clear').addEventListener('click', clearGraph);
-      //document.getElementById('start').addEventListener('click', startGraph);
-      //document.getElementById('stop').addEventListener('click', stopGraph);
+      document.getElementById('clear').addEventListener('click', clearGraph);
+      document.getElementById('start').addEventListener('click', startGraph);
+      document.getElementById('stop').addEventListener('click', stopGraph);
       //document.getElementById('random').addEventListener('click', randomizeInterval);
  
       // full ZingChart schema can be found here:
