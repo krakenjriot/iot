@@ -448,7 +448,20 @@
 	  else 
 	{
 	  //do nothing
-	}	
+	}
+
+	//update batch file
+	$sql = "SELECT * FROM tbl_boards ";
+	$result = mysqli_query($conn, $sql); 
+	if (mysqli_num_rows($result) > 0) 
+	{	
+		while($row = mysqli_fetch_assoc($result)) {
+			$board_name = $row['board_name'];
+			update_list($board_name);
+			create_batch_file_monitor($board_name);			
+		}  
+	} 
+	
 	
    	header("location: ?p=4&server_notif=update-server-success#mark-server");
 	exit();	
@@ -481,35 +494,43 @@
   }	
   }     
    
+   
+   
+   
   if(isset($_POST['delete_board']))
   {
-  $board_name = $_POST['board_name'];
+		$board_name = $_POST['board_name'];
   
+  		$config = include 'config';				
+		$config['board_name_monitored'] = "";
+		
+		file_put_contents('config', '<?php return ' . var_export($config, true) . ';');	
+		
   
-  // sql to delete a record
-  $sql = "DELETE FROM tbl_boards WHERE board_name='$board_name'";
-  
-  if (mysqli_query($conn, $sql)) {
-  //
-  } 
-  
-  
-  $sql = "DELETE FROM tbl_url WHERE board_name='$board_name'";  
-  if (mysqli_query($conn, $sql)) {
-  //			  
-  } 
-  
-  $sql = "DELETE FROM tbl_pins WHERE board_name='$board_name'";
-  
-  if (mysqli_query($conn, $sql)) {
-   //echo "Record deleted successfully";
-   	header("location: ?p=4&board_notif=delete-board-success#mark-board");
-  exit();			  
-  } else {
-   //echo "Error deleting record: " . mysqli_error($conn);
-   	header("location: ?p=4&board_notif=".mysqli_error($conn));
-  exit();			  
-  }
+	  // sql to delete a record
+	  $sql = "DELETE FROM tbl_boards WHERE board_name='$board_name'";
+	  
+	  if (mysqli_query($conn, $sql)) {
+	  //
+	  } 
+	  
+	  
+	  $sql = "DELETE FROM tbl_url WHERE board_name='$board_name'";  
+	  if (mysqli_query($conn, $sql)) {
+	  //			  
+	  } 
+	  
+	  $sql = "DELETE FROM tbl_pins WHERE board_name='$board_name'";
+	  
+	  if (mysqli_query($conn, $sql)) {
+	   //echo "Record deleted successfully";
+		header("location: ?p=4&board_notif=delete-board-success#mark-board");
+	  exit();			  
+	  } else {
+	   //echo "Error deleting record: " . mysqli_error($conn);
+		header("location: ?p=4&board_notif=".mysqli_error($conn));
+	  exit();			  
+	  }
   
   
   }//     
@@ -540,14 +561,24 @@
 	
 	$server_name = str_replace(" ","_",$server_name);
   
-  	//$sql = "SELECT * FROM tbl_serverss ";
-  	//$result = mysqli_query($conn, $sql);
+	//update batch file
+	$sql = "SELECT * FROM tbl_boards ";
+	$result = mysqli_query($conn, $sql); 
+	if (mysqli_num_rows($result) > 0) 
+	{	
+		while($row = mysqli_fetch_assoc($result)) {
+			$board_name = $row['board_name'];
+			update_list($board_name);
+			create_batch_file_monitor($board_name);			
+		}  
+	} 
+	
   
   	$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir, refresh_sec)
   	VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir', '$refresh_sec')";
   
   	if ($conn->query($sql) === TRUE) {
-  		//echo "New record created successfully";
+  		//echo "New record created successfully";		
   	  	header("location: ?p=4&server_notif=new-server-added-successfull#mark-server");
   		exit();	
   	} else {
@@ -639,7 +670,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>SB Admin 2 - Dashboard</title>
+    <title>PORTTY Admin Dashboard</title>
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -1154,7 +1185,7 @@
                     <div class="row no-gutters align-items-center">
                       <div class="col mr-2">
                         <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
-                          Others (0)
+                          DHT (0)
                         </div>
                         <div class="h2 mb-0 font-weight-bold text-gray-800">0/0</div>
                       </div>
@@ -1311,6 +1342,25 @@
                   <table class="display table table-bordered" id="" width="100%" cellspacing="0">
                     <thead>
                       <tr>
+					    
+						<th>trash</th>
+						<th>edit</th>
+                        <th>web_service</th>
+                        <th>web_page</th>
+                        <th>server_name</th>
+                        <th>server_desc</th>
+                        <th>server_ip</th>
+                        <th>server_location</th>
+                        <th>server_timezone</th>
+                        <th>htdocs_dir</th>
+                        <th>conf_dir</th>
+						<th>refresh_sec</th>
+                        <th>local</th> 
+                      </tr>
+                    </thead>
+                    <tfoot>
+                      <tr>
+                       	<th>trash</th>
 						<th>edit</th>
                         <th>web_service</th>
                         <th>web_page</th>
@@ -1323,24 +1373,7 @@
                         <th>conf_dir</th>
 						<th>refresh_sec</th>
                         <th>local</th>                        
-                        <th>trash</th>
-                      </tr>
-                    </thead>
-                    <tfoot>
-                      <tr>
-                        <th>edit</th>
-                        <th>web_service</th>
-                        <th>web_page</th>
-                        <th>server_name</th>
-                        <th>server_desc</th>
-                        <th>server_ip</th>
-                        <th>server_location</th>
-                        <th>server_timezone</th>
-                        <th>htdocs_dir</th>
-                        <th>conf_dir</th>
-						<th>refresh_sec</th>
-                        <th>local</th>                        
-                        <th>trash</th>
+                        
                       </tr>
                     </tfoot>
                     <tbody>
@@ -1364,7 +1397,8 @@
                         		while($row = mysqli_fetch_assoc($result)) {
                         			echo "<tr>" . 
                         			//"<td>". $i++ . "</td>" .
-                        "<td><a href='#' data-toggle='modal' data-target='#editServer' class='btn btn-danger btn-circle btn-sm' 
+                        "<td><a href='#' data-toggle='modal' data-target='#delServer' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["server_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
+						"<td><a href='#' data-toggle='modal' data-target='#editServer' class='btn btn-danger btn-circle btn-sm' 
                         data-server_name='" . $row["server_name"] . "' 
                         data-server_desc='" . $row["server_desc"] . "' 
                         data-server_ip='" . $row["server_ip"] . "'
@@ -1375,7 +1409,7 @@
                         data-refresh_sec='" . $row["refresh_sec"] . "'
                         ><i class='fas fa-edit'></i></a></td>" .
                         
-                        
+									
                         			"<td>". $row["web_service"] . "</td>" .
                         			"<td>". $row["web_page"] . "</td>" .
                         			"<td>". $row["server_name"] . "</td>" .
@@ -1390,7 +1424,7 @@
                         			//"<td>". $row["active"] . "</td>" .									
                         			//"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
                         			
-                        "<td><a href='#' data-toggle='modal' data-target='#delServer' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["server_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
+                        
                         			//"<a href='#' class='btn btn-primary btn-icon-split' data-toggle='modal' data-target='#addServer' data-id='@getbootstrap' ><i class='fas fa-trash'></i></button></td>".
                         //"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-mykey='123456' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .		 
                         			//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-id='1' data-name='Computer' data-duration='255' data-date='27-04-2020' > Edit</a></td>" .
@@ -1452,7 +1486,8 @@
                   <table class="display table table-bordered" id="" width="100%" cellspacing="0">
                     <thead>
                       <tr>
-                      <th>edit</th>
+						<th>trash</th>
+                         <th>edit</th>	
 						<th>batch_file</th>
 						<th>monitor</th>
                         <th>board_name</th>
@@ -1462,13 +1497,13 @@
                         <th>hum</th>
                         <th>board_type</th>
 						<th>refresh_sec</th>
-						<th>com_port</th>
-                        <th>trash</th>
+						<th>com_port</th> 
                       </tr>
                     </thead>
                     <tfoot>
                       <tr>
-                        <th>edit</th>
+                        <th>trash</th>
+                         <th>edit</th>	
 						<th>batch_file</th>
 						<th>monitor</th>
                         <th>board_name</th>
@@ -1478,8 +1513,7 @@
                         <th>hum</th>
                         <th>board_type</th>
 						<th>refresh_sec</th>
-						<th>com_port</th>
-                        <th>trash</th>
+						<th>com_port</th>                        
                       </tr>
                     </tfoot>
                     <tbody>
@@ -1502,8 +1536,8 @@
                         	{
                         	  // output data of each row
                         		while($row = mysqli_fetch_assoc($result)) {
-                        			echo "<tr>" . 
-                        			//"<td>". $i++ . "</td>" .
+                        			echo "<tr>" .                         			
+									"<td><a href='#' data-toggle='modal' data-target='#delBoard' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["board_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 																					
 									"<td><a href='#' data-toggle='modal' data-target='#editBoard' class='btn btn-danger btn-circle btn-sm' 
 									data-board_name='" . $row["board_name"] . "' 
 									data-board_desc='" . $row["board_desc"] . "' 
@@ -1511,9 +1545,10 @@
 									data-board_type='" . $row["board_type"] . "'						
 									data-com_port='" . $row["com_port"] . "'						
 									data-refresh_sec='" . $row["refresh_sec"] . "'						
-									><i class='fas fa-edit'></i></a></td>" .											
+									><i class='fas fa-edit'></i></a></td>" .	
+									"<td><a href='batchfile/" . $row["board_name"] . ".porttymon.bat' download><i class='fas fa-download'></i></a></td>" .									
 									//<a href="/images/myw3schoolsimage.jpg" download="w3logo">
-                        			"<td><a href='batchfile/" . $row["board_name"] . ".porttymon.bat' download><i class='fas fa-download'></i></a></td>" .
+                        			
                         			"<td>". $row["monitor"] . "</td>" .
                         			"<td>". $row["board_name"] . "</td>" .
                         			"<td>". $row["board_desc"] . "</td>" .
@@ -1524,7 +1559,7 @@
                         			"<td>". $row["refresh_sec"] . "</td>" .	
                         			"<td>". $row["com_port"] . "</td>" .	
                         				
-                        			"<td><a href='#' data-toggle='modal' data-target='#delBoard' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["board_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
+                        			
                         			"</tr>";
                         		}
                         	} 
@@ -2091,11 +2126,11 @@
               </div>
               <div class="form-group">
                 <label for="htdocs_dir" class="col-form-label">htdocs_dir:</label>
-                <input class="form-control" id="htdocs_dir" name="htdocs_dir" ></input>
+                <input class="form-control" id="htdocs_dir" name="htdocs_dir" value="C:\xampp\htdocs"></input>
               </div>
               <div class="form-group">
                 <label for="conf_dir" class="col-form-label">conf_dir:</label>
-                <input class="form-control" id="conf_dir" name="conf_dir"  ></input>
+                <input class="form-control" id="conf_dir" name="conf_dir"  value="C:\xampp\htdocs\portty\exe"></input>
               </div>
 
               <div class="form-group">
@@ -2322,10 +2357,10 @@
           transport: 'http',
           //url: 'https://us-central1-zingchart-com.cloudfunctions.net/public_http_feed?min=0&max=40&plots=1',
           url:'?p=16',
-		  interval: 3000,
+		  interval: 400,
           maxTicks: 16,
           adjustScale: false,
-          resetTimeout: 1000
+          resetTimeout: 100
         },
         plot: {
           shadow: 1,

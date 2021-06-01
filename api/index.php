@@ -1,15 +1,17 @@
 <?php
 	if(isset($_GET['pins']) && $_GET['board_name']){
+		
+		//b=$board_name&
+		//p=$pins&
+		//conf_dir=$conf_dir&
+		//server_timezone=$server_timezone";
+		
 		$pins = $_GET['pins'];
 		$board_name = $_GET['board_name'];
 		$server_timezone = $_GET['server_timezone'];
 		$htdocs_dir = $_GET['htdocs_dir'];					
 		$conf_dir = $_GET['conf_dir'];					
 		$board_refresh_sec = $_GET['board_refresh_sec'];					
-		
-		
-		
-		
 		
 		file_put_contents($conf_dir ."\\". $board_name .".output", $pins);		
 		$dht_file = $conf_dir ."\\". $board_name .".dht";		
@@ -47,8 +49,7 @@
 			//echo "</br>"; 
 			//echo "dht temp: ". $dht_arr[0]."</br>";
 			//echo "dht hum: ". $dht_arr[1]."</br>";
-			date_default_timezone_set($server_timezone);
-			
+			date_default_timezone_set($server_timezone);			
 			$dht_csv = file_get_contents($dht_file);
 			$dt = date('Y-m-d H:i:s');
 			

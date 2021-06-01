@@ -2,39 +2,97 @@
 
 		include("functions.php");	
 		include("dbconnect.php");
+		
+	$server_ip = ""; 		
+	$url = 	"";	
+	$parse = "";	
+	$root_url = "";		
+	$web_service_s = "";
+	$web_page_s = "";		
 
-		$service_msg = "";
-		$page_msg = "";
-		$monitor_msg = "";
+		echo "<pre>";			
+		echo "timestamp: ".date('Y-m-d H:i:s')."</br>";			
+		echo "</pre>";	
 
+	  //CHECK BASED URL AND PAGE STATUS  
+	  $sql = "SELECT * FROM tbl_servers ";
+	  $result = mysqli_query($conn, $sql); 
+	  if (mysqli_num_rows($result) > 0) 
+	  {
+		// output data of each row
+		while($row = mysqli_fetch_assoc($result)) {
+			$server_ip = $row['server_ip'];	
+			$url = "http://$server_ip/portty/";
+			$parse = parse_url($url); 
+			$root_url = "http://" . $parse['host'];					
+						
+			if (check_root_url_reachable($root_url)){			
+				echo "<pre>";	
+				echo "*************** web server status ***************</br>";			
+				echo "server: $server_ip</br>";
+				echo "web service <i  style='background-color:MediumSeaGreen;'>running</i></br>";				 
 
+				$web_service_s = 1;	
+				///////////////////////////////////////////////
+				$sql = "UPDATE tbl_servers SET ". 
+				" web_service = 1 ".  
+				"WHERE server_ip = '$server_ip' ";
+				$conn->query($sql);
+				///////////////////////////////////////////////					
+				if(check_url_page_reachable($url)){				
+					echo "web page <i  style='background-color:MediumSeaGreen;'>running</i></br>";	
+					echo "*************************************************</br>";		
+					echo "</pre>";	
+					$web_page_s = 1;	
+					///////////////////////////////////////////////
+					$sql = "UPDATE tbl_servers SET ". 
+					" web_page = 1 ".  
+					"WHERE server_ip = '$server_ip' ";
+					$conn->query($sql);
+					///////////////////////////////////////////////	
+				} else {
+					echo "web page <i  style='background-color:Tomato;'>stopped</i></br>";	
+					echo "*************************************************</br>";		
+					echo "</pre>";	
+					$web_page_s = 0;	
+					///////////////////////////////////////////////
+					$sql = "UPDATE tbl_servers SET ". 
+					" web_page = 0 ".  
+					"WHERE server_ip = '$server_ip' ";
+					$conn->query($sql);
+					///////////////////////////////////////////////						
+				}
+			} else {
+				echo "<pre>";	
+				echo "*************** web server status ***************</br>";				
+				echo "server: $server_ip</br>";	
+				echo "web service <i  style='background-color:Tomato;'>stopped</i></br>";	
+				echo "web page <i  style='background-color:Tomato;'>stopped</i></br>";					
+				echo "*************************************************</br>";		
+				echo "</pre>";				
+				$web_service_s = 0;
+				$web_page_s = 0;
+				///////////////////////////////////////////////
+				$sql = "UPDATE tbl_servers SET ". 
+				" web_service = 0, ".  
+				" web_page = 0 ".  
+				"WHERE server_ip = '$server_ip' ";
+				$conn->query($sql);
+				///////////////////////////////////////////////					
+			}	
+		}//while
+	  }//if
+
+	
 
 	  //create board list   
 	  $sql = "SELECT * FROM tbl_url ";
 	  $result = mysqli_query($conn, $sql);  
 
-			$server_ip = "";	
-			$url = "";	
-			$refresh_sec = "";
-			
-				$board_name = "";
-				//$board_name2 = "";
-				$dt = "";	
-				$temp = "";
-				$hum = "";
-				$hashed = "";
-				$tz = "";
-				$monitor = "";	
-				$response_arr= "";				
-			
-			
-	  
 	  if (mysqli_num_rows($result) > 0) 
 	  {
 		// output data of each row
 		while($row = mysqli_fetch_assoc($result)) {
-			
-			
 			
 			$server_ip = $row['server_ip'];	
 			$board_name = $row['board_name'];	
@@ -47,55 +105,11 @@
 			
 			if(!empty($server_ip)){
 			
-						$url = "http://". $server_ip . "/portty/api/?board_name=$board_name&pins=$pins&conf_dir=$conf_dir&server_timezone=$server_timezone&htdocs_dir=$htdocs_dir&board_refresh_sec=$board_refresh_sec";
-						
-						
-						$parse = parse_url($url);
-						//echo "</br>host: ".$parse['host']; // prints 'google.com'    
-						
-						$root_url = "http://" . $parse['host'];	
-								
-						//echo "</br>root url: " . $root_url . "";
-						//echo "</br>url: " . $url . "";
-						//echo "</br>";
-						//echo "</br>";
-						//echo "</br>";
-					   
-					   if (check_root_url_reachable($root_url))
-					   {
-							   //echo "</br>web service in ($server_ip) is running!";	
-								$service_msg = 1;
-								//$page_msg = "";
-								//$monitor_msg = "";
-								///////////////////////////////////////////////
-								$sql = "UPDATE tbl_servers SET ". 
-								" web_service = 1 ".  
-								"WHERE server_ip = '$server_ip' ";
-								$conn->query($sql);
-								///////////////////////////////////////////////
-
-
-							   
-							   //set web service to online			   
-							   if(check_url_page_reachable($url)){
-								   //echo "</br>web page in ($server_ip) is reachable!";
-								   //echo "</br>";
-								   $page_msg = 1;
-
-
-								///////////////////////////////////////////////
-								$sql = "UPDATE tbl_servers SET ". 
-								" web_page = 1 ".  
-								"WHERE server_ip = '$server_ip' ";
-								$conn->query($sql);
-								///////////////////////////////////////////////
-
-
-
-								   
-								   
-									$ctx = stream_context_create(['http'=> ['timeout' => 5]]); // 5 seconds
-									$response = @file_get_contents($url,null,$ctx);
+							//echo "$board_name,$dt,$dht_csv,0ld7vcxm72c2g3yz,$server_timezone,$monitor";
+							$url = "http://". $server_ip . "/portty/api/?board_name=$board_name&pins=$pins&conf_dir=$conf_dir&server_timezone=$server_timezone&htdocs_dir=$htdocs_dir&board_refresh_sec=$board_refresh_sec";
+							//$url = "http://". $server_ip . "/portty/api/?b=$board_name&p=$pins&conf_dir=$conf_dir&server_timezone=$server_timezone";
+							$ctx = stream_context_create(['http'=> ['timeout' => 5]]); // 5 seconds
+							$response = @file_get_contents($url,null,$ctx);
 									
 							//"myboard1,22:05:45,29.90,22.00,0ld7vcxm72c2g3yz,Asia/Riyadh,0";
 							///////////////////////////////////////////////
@@ -121,133 +135,87 @@
 								$monitor = "";	
 							}
 							
-							//echo "$response ".$response."</br>";
+							//echo "response ".$response."</br>";
 							//echo "monitor ".$monitor."</br>";
-							//echo "monitor ".$response_arr[6]."</br>";
+							//echo "response_arr ".$response_arr[6]."</br>";
 							
 							if($monitor){
-								$monitor_msg = 1;
-								//echo "</br>porttymon.exe process for $board_name is running @($server_ip)";	
+								$monitor_msg = 1;	
+								$sql = "INSERT INTO tbl_dht (temp, hum, dt, board_name)
+								VALUES ($temp, $hum, '$dt', '$board_name')";
+								$conn->query($sql);	
+								
+									///////////////////////////////////////////////
+									  $sql = "UPDATE tbl_boards SET ".			  
+									  " temp = $temp, ".			
+									  " hum = $hum ".				  
+									  " WHERE board_name = '$board_name' ";
+									  $conn->query($sql);
+									///////////////////////////////////////////////								
 							} else {
-								$monitor_msg = 0;
-								//echo "</br>porttymon.exe process for $board_name is not running @($server_ip)";
+								$monitor_msg = 0;								
 							}
-							
-
-
 								///////////////////////////////////////////////
 								$sql = "UPDATE tbl_boards SET ". 
 								" monitor = $monitor ".  
 								"WHERE board_name = '$board_name' ";
 								$conn->query($sql);
 								///////////////////////////////////////////////
-
-
-						
 						
 						//myboard1,02:34:08,30.70,12.00,0ld7vcxm72c2g3yz,Asia/Manila
 						
-						$sql = "INSERT INTO tbl_dht (temp, hum, dt, board_name)
-						VALUES ($temp, $hum, '$dt', '$board_name')";
-						$conn->query($sql);	
-						
-							///////////////////////////////////////////////
-							  $sql = "UPDATE tbl_boards SET ".			  
-							  " temp = $temp, ".			
-							  " hum = $hum ".				  
-							  " WHERE board_name = '$board_name' ";
-							  $conn->query($sql);
-							///////////////////////////////////////////////
-							///////////////////////////////////////////////
-							///////////////////////////////////////////////
-									
-									
-									
-									
-									
-									
-								   
-								   //echo "</br>response ". $response;
-								   
-							   } else {
-								   $page_msg = 0;
-								   //echo "</br>web page in ($server_ip) is not reachable!";
-							   }
-					   }
-					   else
-					   {
-						   //echo "</br>web service in ($server_ip) is not running!";
-							$service_msg = 0;
-							
-								$sql = "UPDATE tbl_servers SET ". 
-								" web_service = 0, ".  
-								" web_page = 0 ".  
-								"WHERE server_ip = '$server_ip' ";
-								$conn->query($sql);
 
-								$sql = "UPDATE tbl_boards SET ".				
-								" monitor = 0 ".  
-								"WHERE board_name = '$board_name' ";
-								$conn->query($sql);					
-								
-								
-						   //set web service to offline			   
-						   //set web page unreachable
-						   //set porttymon not running
-					   }
+							///////////////////////////////////////////////
+							///////////////////////////////////////////////		
 
-			}//	
+				if($monitor_msg) {
+					
+					echo "<pre>";	
+					echo "***************** board status ******************</br>";		
+								
+					echo "server: $server_ip</br>";	
+					echo "board: $board_name</br>";	
+					echo "porttymon.exe process <i  style='background-color:MediumSeaGreen;'>running</i></br>";					
+					echo "*************************************************</br>";
+					echo "</pre>";
+				} else {
+					echo "<pre>";	
+					echo "***************** board status ******************</br>";							
+					echo "server: $server_ip</br>";	
+					echo "board: $board_name</br>";	
+					echo "porttymon.exe process <i  style='background-color:Tomato;'>stopped</i></br>";				
+					echo "*************************************************</br>";
+					echo "</pre>";	
+				}//	
+
+			}//	server_ip empty
 			
-			
-			
-		echo "<pre>";		
-		echo "************************************</br>";		
-		echo "server: $server_ip</br>";
-		echo "board: $board_name</br>";
 		
-		if($service_msg) {
-			echo "web service running</br>";
-		} else {
-			echo "web service stopped</br>";
-		}
-		
-		if($page_msg) {
-			echo "web page running</br>";
-		} else {
-			echo "web page_msg stopped</br>";
-		}		
-		
-		if($monitor_msg) {
-			echo "porttymon.exe running</br>";
-		} else {
-			echo "porttymon.exe stopped</br>";
-		}	
-		echo "************************************</br>";		
-		echo "</pre>";		
 			
-			
-			
-			
-			
-			
-			
-			
+
+	
 			
 			
 		}//while
 		
 	  }//if (mysqli_num_rows
-
-
-
-		
-
-
-
-
 	   
-		mysqli_close($conn);
+	mysqli_close($conn);
 	   
 	   
 	   
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+									
