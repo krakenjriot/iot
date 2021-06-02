@@ -490,6 +490,61 @@ if (isset($_POST['delete_board']))
         
     }
 
+
+
+
+    $sql = "SELECT * FROM tbl_boards WHERE  board_name ='$board_name'";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0)
+    {
+        while ($row = mysqli_fetch_assoc($result))
+        {
+            $server_name = $row['server_name'];         
+        }
+    }
+
+
+    $sql = "SELECT * FROM tbl_servers WHERE  server_name ='$server_name' ";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0)
+    {
+        while ($row = mysqli_fetch_assoc($result))
+        {
+            $exe_dir = $row['exe_dir'];         
+        }
+    }
+	
+	
+	
+
+	//delete batch files, output, dht, input, limits
+	$file_batch = "batchfile\\$board_name.porttymon.bat";
+	if(file_exists($file_batch)){
+		unlink($file_batch);	
+	}
+	
+	$file_limits = "exe\\conf\\$board_name.limits";
+	if(file_exists($file_limits)){
+		unlink($file_limits);	
+	}
+	
+	$file_dht = "exe\\conf\\$board_name.dht";
+	if(file_exists($file_dht)){
+		unlink($file_dht);	
+	}
+	
+	$file_out = "exe\\conf\\$board_name.output";
+	if(file_exists($file_out)){
+		unlink($file_out);	
+	}
+
+	$file_in = "exe\\conf\\$board_name.input";
+	if(file_exists($file_in)){
+		unlink($file_in);	
+	}	
+		
+
+
     $sql = "DELETE FROM tbl_pins WHERE board_name='$board_name'";
 
     if (mysqli_query($conn, $sql))
@@ -1184,7 +1239,7 @@ if (isset($_POST['submit_board']))
 			<h2 id="mark-monitor"></h2>
             <div class="card shadow mb-4">
               <div class="card-header py-3">
-                <h4 class="m-0 font-weight-bold text-primary">Realtime Health Monitoring [<?php echo $board_name_monitored; ?>]</h4>
+                <h4 class="m-0 font-weight-bold text-primary">Realtime DHT Monitoring [ <?php echo $board_name_monitored; ?> ]</h4>
                 <div class="my-2">
                   <p><?php echo $monitor_notif; ?></p>
                 </div>

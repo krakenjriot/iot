@@ -5,11 +5,11 @@
 
 	cd C:\\xampp\\htdocs\\portty\\exe 
 
-	rem del /q /f 9td0IEe1Vwt7rFgn.output 
+	rem del /q /f tnD7PLT4UUaxKzFy.output 
 
 	rem cd ..
 	rem timeout /t 5 /nobreak
-	porttymon.exe 9td0IEe1Vwt7rFgn com11 3 
+	porttymon.exe tnD7PLT4UUaxKzFy com10 3 
 
 	pause
 	
