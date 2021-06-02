@@ -3,7 +3,7 @@
 
 	c: 
 
-	cd C:\\xampp\\htdocs\\portty\\exe 
+	cd  
 
 	rem del /q /f eRhu3xZYZFZKYBdU.output 
 
