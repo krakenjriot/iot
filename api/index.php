@@ -3,19 +3,25 @@
 		
 		//b=$board_name&
 		//p=$pins&
-		//conf_dir=$conf_dir&
+		//exe_dir=$exe_dir&
 		//server_timezone=$server_timezone";
 		
 		$pins = $_GET['pins'];
 		$board_name = $_GET['board_name'];
 		$server_timezone = $_GET['server_timezone'];
 		$htdocs_dir = $_GET['htdocs_dir'];					
-		$conf_dir = $_GET['conf_dir'];					
+		$exe_dir = $_GET['exe_dir'];					
 		$board_refresh_sec = $_GET['board_refresh_sec'];					
+				
+		$out_file = $exe_dir ."\\conf\\". $board_name .".output";
+		file_put_contents($out_file, $pins);	
 		
-		file_put_contents($conf_dir ."\\". $board_name .".output", $pins);		
-		$dht_file = $conf_dir ."\\". $board_name .".dht";		
+		//$path = '$exe_dir ."\\conf\\"x\\';
+		//mkdir($path, null, true);
+				
+		$dht_file = $exe_dir ."\\conf\\". $board_name .".dht";
 		
+		//create file if not exist
 		if(!file_exists($dht_file)) {
 			//touch($dht_file, "0,0");
 			file_put_contents($dht_file, "0,0");	
@@ -29,7 +35,7 @@
 			
 			//echo "diff ".$diff."</br>";
 			//echo "</br>";
-			//echo "board_refresh_sec ".$board_refresh_sec."</br>";
+			//echo "dht_file ".$dht_file."</br>";
 			
 			//value is zero then set it to 3 secs
 			//if(!$board_refresh_sec) $board_refresh_sec = 3;
@@ -50,16 +56,15 @@
 			//echo "dht temp: ". $dht_arr[0]."</br>";
 			//echo "dht hum: ". $dht_arr[1]."</br>";
 			date_default_timezone_set($server_timezone);			
-			$dht_csv = file_get_contents($dht_file);
+			$dht_csv = @file_get_contents($dht_file);
 			$dt = date('Y-m-d H:i:s');
 			
 			//echo "</br>";
 			//echo "</br>";
 			//echo "return porttysen.exe input file";
+			//if(empty($dht_csv))$dht_csv = "0,0";
 			
-			echo "$board_name,$dt,$dht_csv,0ld7vcxm72c2g3yz,$server_timezone,$monitor";				
-			
-	
+			if(!empty($dht_csv)) echo "$board_name,$dt,$dht_csv,0ld7vcxm72c2g3yz,$server_timezone,$monitor";		
 	}
 	
 	

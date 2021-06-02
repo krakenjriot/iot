@@ -5,7 +5,5 @@
   'lname' => 'Villacacan',
   'ipaddress' => '192.168.100.2',
   'refresh_sec' => '3',
-  'board_name_monitored' => 'myboard2',
-  'conf_dir' => NULL,
-  'htdocs_dir' => NULL,
+  'board_name_monitored' => '9td0IEe1Vwt7rFgn',
 );

@@ -4,7 +4,7 @@
 function update_list($board_name){
 
 	$server_ip = "";
-	$conf_dir = "";
+	$exe_dir = "";
 	$htdocs_dir = "";
 	$board_refresh_sec  = "";
 	$server_timezone = "";
@@ -52,17 +52,17 @@ function update_list($board_name){
 			// output data of each row
 			while($row = mysqli_fetch_assoc($result)) {
 			$server_ip = $row['server_ip'];
-			$conf_dir = addslashes($row['conf_dir']);
+			$exe_dir = addslashes($row['exe_dir']);
 			$htdocs_dir = addslashes($row['htdocs_dir']);
 			$server_timezone = $row['server_timezone'];
 		}
 	}
 	
 	echo "server_ip ".$server_ip."</br>";
-	echo "conf_dir ".$conf_dir."</br>";
+	echo "exe_dir ".$exe_dir."</br>";
 	echo "server_timezone ".$server_timezone."</br>";
 
-	$url = "http://". $server_ip . "/portty/api/?board_name=$board_name&pins=$pins&conf_dir=$conf_dir&server_timezone=$server_timezone&htdocs_dir=$htdocs_dir&board_refresh_sec=$board_refresh_sec";
+	$url = "http://". $server_ip . "/portty/api/?board_name=$board_name&pins=$pins&exe_dir=$exe_dir&server_timezone=$server_timezone&htdocs_dir=$htdocs_dir&board_refresh_sec=$board_refresh_sec";
 	
 	echo "url ".$url."</br>";	
 	//check if server ip is present if not insert
@@ -80,7 +80,7 @@ function update_list($board_name){
 			" server_ip = '$server_ip', ".	  
 			" server_name = '$server_name', ".	  
 			" htdocs_dir = '$htdocs_dir', ".	  
-			" conf_dir = '$conf_dir', ".	  
+			" exe_dir = '$exe_dir', ".	  
 			" server_timezone = '$server_timezone', ".	  
 			" board_refresh_sec = '$board_refresh_sec', ".	  
 			" response = '$response' ".	  
@@ -93,8 +93,8 @@ function update_list($board_name){
 	else 
 	{
 		//not present perform insert
-		$sql = "INSERT INTO tbl_url (board_name, server_ip, url, pins, server_name, htdocs_dir, conf_dir, server_timezone, board_refresh_sec)
-  		VALUES ('$board_name', '$server_ip', '$url', '$pins', '$server_name', '$htdocs_dir', '$conf_dir', '$server_timezone', '$board_refresh_sec')";
+		$sql = "INSERT INTO tbl_url (board_name, server_ip, url, pins, server_name, htdocs_dir, exe_dir, server_timezone, board_refresh_sec)
+  		VALUES ('$board_name', '$server_ip', '$url', '$pins', '$server_name', '$htdocs_dir', '$exe_dir', '$server_timezone', '$board_refresh_sec')";
   		$conn->query($sql);		
 	}
 
@@ -104,7 +104,7 @@ function update_list($board_name){
 	echo  "pins :" 		.	$pins. "</br>";
 	echo  "server_name :" .	$server_name. "</br>";
 	echo  "server_ip :" 	.	$server_ip. "</br>";
-	echo  "conf_dir :" 	.	$conf_dir. "</br>";
+	echo  "exe_dir :" 	.	$exe_dir. "</br>";
 	*/
 		
 	  
@@ -147,23 +147,23 @@ function create_batch_file_monitor($board_name){
 	$sql = "SELECT * FROM tbl_servers WHERE server_name = '$server_name' ";	
 	$result = mysqli_query($conn, $sql);  
 	//$server_ip = "";
-	$conf_dir = "";
+	$exe_dir = "";
 	
 	if (mysqli_num_rows($result) > 0) 
 		{
 			// output data of each row
 			while($row = mysqli_fetch_assoc($result)) {
 			//$server_ip = $row['server_ip'];
-			$conf_dir = addslashes($row['conf_dir']);			
+			$exe_dir = addslashes($row['exe_dir']);			
 		}
 	}	
 	
 	$batch_content = "
 	\n
 	c: \n
-	cd $conf_dir \n
+	cd $exe_dir \n
 	rem del /q /f $board_name.output \n
-	cd ..
+	rem cd ..
 	rem timeout /t 5 /nobreak
 	porttymon.exe $board_name $com_port $refresh_sec \n
 	pause
@@ -195,16 +195,13 @@ function check_url_page_reachable($url){
 	
 }//
 
-function check_conf_dir_exist($url){
+function check_exe_dir_exist($url){
 	
 }//
 
 function check_htdocs_dir_exist($url){
 	
 }//
-
-
-
        //returns true, if domain is availible, false if not
        function check_root_url_reachable($url)
        {
@@ -217,7 +214,7 @@ function check_htdocs_dir_exist($url){
                //initialize curl
                $curlInit = curl_init($url);
                //curl_setopt($curlInit,CURLOPT_CONNECTTIMEOUT,10);
-               curl_setopt($curlInit,CURLOPT_CONNECTTIMEOUT,5);
+               curl_setopt($curlInit,CURLOPT_CONNECTTIMEOUT,10);
                curl_setopt($curlInit,CURLOPT_HEADER,true);
                curl_setopt($curlInit,CURLOPT_NOBODY,true);
                curl_setopt($curlInit,CURLOPT_RETURNTRANSFER,true);
@@ -233,5 +230,21 @@ function check_htdocs_dir_exist($url){
        }//
 
 
-
+//$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+ // Output: 36e5e490f14b031e
+//echo substr(md5(time()), 0, 16);
+ 
+// Output: aa88ef597c77a5b3
+//echo substr(sha1(time()), 0, 16);
+function generate_string($strength = 16) {
+	$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	
+    $input_length = strlen($permitted_chars);
+    $random_string = '';
+    for($i = 0; $i < $strength; $i++) {
+        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
+        $random_string .= $random_character;
+    } 
+    return $random_string;
+}
 

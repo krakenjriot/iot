@@ -1,8 +1,8 @@
 <?php
 
 	$config = include 'config';				
-	$conf_dir = $config['conf_dir'];
-	$htdocs_dir = $config['htdocs_dir'];
+	//$conf_dir = $config['conf_dir'];
+	//$htdocs_dir = $config['htdocs_dir'];
 	$refresh_sec = $config['refresh_sec'];
 	$ipaddress = $config['ipaddress'];
 	
@@ -14,16 +14,16 @@
 	}
 	
 	if(isset($_POST['submit'])) {		
-		$conf_dir_post = $_POST['conf_dir'];
-		$htdocs_dir_post = $_POST['htdocs_dir'];		
+		//$conf_dir_post = $_POST['conf_dir'];
+		//$htdocs_dir_post = $_POST['htdocs_dir'];		
 		$ipaddress_post = $_POST['ipaddress'];		
 		$refresh_sec_post = $_POST['refresh_sec'];		
 		
 		
 		$config = include 'config';				
 		
-		$config['conf_dir']= $conf_dir_post;				
-		$config['htdocs_dir']= $htdocs_dir_post;				
+		//$config['conf_dir']= $conf_dir_post;				
+		//$config['htdocs_dir']= $htdocs_dir_post;				
 		$config['ipaddress']= $ipaddress_post;				
 		$config['refresh_sec']= $refresh_sec_post;				
 		

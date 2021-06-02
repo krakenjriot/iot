@@ -2,11 +2,14 @@
   include("dbconnect.php");
   include("functions.php");
   
+  //$show_modal = false;
+  
   $online_servers = "";
   $offline_servers = "";
   //get server_notif
   if(isset($_GET['server_notif'])){
-  	$server_notif = $_GET['server_notif'];
+  	$server_notif = $_GET['server_notif'];	
+	
   } else {
   	$server_notif = "";
   }
@@ -94,6 +97,23 @@
 		$server_ip_local = $row['server_ip'];
 	}
   } 
+  
+  
+  //create server list   
+  /*
+  $sql = "SELECT COUNT(DISTINCT(board_name) FROM tbl_dht ";
+  $result = mysqli_query($conn, $sql);
+  $board_name = "";
+  if (mysqli_num_rows($result) > 0) 
+  {
+	// output data of each row
+	while($row = mysqli_fetch_assoc($result)) {
+		$dht_count = $row['COUNT(DISTINCT(board_name)'];
+	}
+  } */  
+  
+  
+  
   
 
 	if($server_ip_local == $ipaddress) $online_text = "<span class'text-success'>Local</span>";
@@ -197,10 +217,7 @@
 		$server_list_option .= "<option>". $row['server_name'] ."</option>";					
 	}
   } 
-  else 
-	{
-  //echo "0 results";
-       }
+ 
                                    	
   
   
@@ -407,16 +424,17 @@
   server_location
   server_timezone
   htdocs_dir
-  conf_dir		
+  exe_dir		
   */
   $server_name = $_POST['server_name'];
   $server_desc = $_POST['server_desc'];
   $server_ip = $_POST['server_ip'];
   $refresh_sec = $_POST['refresh_sec'];
+  $active = $_POST['active'];
   $server_location = $_POST['server_location'];
   $server_timezone = $_POST['server_timezone'];		
   $htdocs_dir = addslashes($_POST['htdocs_dir']);
-  $conf_dir = addslashes($_POST['conf_dir']);		
+  $exe_dir = addslashes($_POST['exe_dir']);		
   
   
   $sql = "UPDATE tbl_servers SET ".
@@ -426,8 +444,9 @@
   " server_location = '$server_location', ".
   " server_timezone = '$server_timezone', ".
   " refresh_sec = '$refresh_sec', ".
+  " active = $refresh_sec, ".
   " htdocs_dir = '$htdocs_dir', ".		
-  " conf_dir = '$conf_dir' ".	
+  " exe_dir = '$exe_dir' ".	
   
   "WHERE server_name = '$server_name' ";
   
@@ -463,6 +482,13 @@
 	} 
 	
 	
+	//<a href='#' data-toggle='modal' data-target='#alert_msg' data-alert_msg=''></a>
+	
+	//echo '<script type="text/javascript"> $("#alert_msg").modal("show")</script>';
+	//echo "<script type='text/javascript'> $(window).load(function(){ $('#alert_msg').modal('show'); }); </script>";
+	//$show_modal = true;
+	
+	
    	header("location: ?p=4&server_notif=update-server-success#mark-server");
 	exit();	
   } else {		  
@@ -473,6 +499,23 @@
   }
   
      
+	 
+	 
+
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
    
    
   if(isset($_POST['delete_server']))
@@ -547,7 +590,7 @@
   	server_location
   	server_timezone
   	htdocs_dir
-  	conf_dir
+  	exe_dir
   	*/		
   	$server_name = $_POST['server_name'];
   	$server_desc = $_POST['server_desc'];
@@ -557,7 +600,7 @@
   	$server_timezone = $_POST['server_timezone'];
   	$refresh_sec = $_POST['refresh_sec'];
   	$htdocs_dir = addslashes($_POST['htdocs_dir']);
-  	$conf_dir = addslashes($_POST['conf_dir']);
+  	$exe_dir = addslashes($_POST['exe_dir']);
 	
 	$server_name = str_replace(" ","_",$server_name);
   
@@ -574,8 +617,8 @@
 	} 
 	
   
-  	$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir, refresh_sec)
-  	VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir', '$refresh_sec')";
+  	$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, exe_dir, refresh_sec)
+  	VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$exe_dir', '$refresh_sec')";
   
   	if ($conn->query($sql) === TRUE) {
   		//echo "New record created successfully";		
@@ -661,7 +704,9 @@
   
   
   
-  ?>	
+  ?>
+
+  
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -685,9 +730,10 @@
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <link href="css/mycss.css" rel="stylesheet">
+    
 	
-  <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+  <script src="js/zingchart.min.js"></script>
+  <!--<script src="https://cdn.zingchart.com/zingchart.min.js"></script>-->
   <style>
     html,
     body {
@@ -1185,9 +1231,9 @@
                     <div class="row no-gutters align-items-center">
                       <div class="col mr-2">
                         <div class="text-md font-weight-bold text-primary text-uppercase mb-1">
-                          DHT (0)
+                          DHT (<?php echo $online_boards + $offline_boards; ?>)
                         </div>
-                        <div class="h2 mb-0 font-weight-bold text-gray-800">0/0</div>
+                        <div class="h2 mb-0 font-weight-bold text-gray-800"><?php echo $online_boards ."/". $offline_boards; ?></div>
                       </div>
                       <div class="col-auto">
                         <i class="fas fa-toggle-on fa-2x text-gray-300"></i>											
@@ -1345,6 +1391,7 @@
 					    
 						<th>trash</th>
 						<th>edit</th>
+                        <th>monitored?</th>
                         <th>web_service</th>
                         <th>web_page</th>
                         <th>server_name</th>
@@ -1353,15 +1400,16 @@
                         <th>server_location</th>
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
-                        <th>conf_dir</th>
+                        <th>exe_dir</th>
 						<th>refresh_sec</th>
                         <th>local</th> 
                       </tr>
                     </thead>
                     <tfoot>
                       <tr>
-                       	<th>trash</th>
+             		<th>trash</th>
 						<th>edit</th>
+                        <th>monitored?</th>
                         <th>web_service</th>
                         <th>web_page</th>
                         <th>server_name</th>
@@ -1370,7 +1418,7 @@
                         <th>server_location</th>
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
-                        <th>conf_dir</th>
+                        <th>exe_dir</th>
 						<th>refresh_sec</th>
                         <th>local</th>                        
                         
@@ -1385,7 +1433,7 @@
                         server_location
                         server_timezone
                         htdocs_dir
-                        conf_dir
+                        exe_dir
                         */
                         
                         $sql = "SELECT * FROM tbl_servers ";
@@ -1397,6 +1445,7 @@
                         		while($row = mysqli_fetch_assoc($result)) {
                         			echo "<tr>" . 
                         			//"<td>". $i++ . "</td>" .
+                        //"<td><a href='#' data-toggle='modal' data-target='#alert_msg' class='btn btn-danger btn-circle btn-sm' data-alert_msg='" . $row["server_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
                         "<td><a href='#' data-toggle='modal' data-target='#delServer' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["server_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
 						"<td><a href='#' data-toggle='modal' data-target='#editServer' class='btn btn-danger btn-circle btn-sm' 
                         data-server_name='" . $row["server_name"] . "' 
@@ -1405,11 +1454,13 @@
                         data-server_location='" . $row["server_location"] . "'
                         data-server_timezone='" . $row["server_timezone"] . "'
                         data-htdocs_dir='" . $row["htdocs_dir"] . "'
-                        data-conf_dir='" . $row["conf_dir"] . "'
+                        data-exe_dir='" . $row["exe_dir"] . "'
                         data-refresh_sec='" . $row["refresh_sec"] . "'
+                        data-active='" . $row["active"] . "'
                         ><i class='fas fa-edit'></i></a></td>" .
                         
 									
+                        			"<td>". $row["active"] . "</td>" .
                         			"<td>". $row["web_service"] . "</td>" .
                         			"<td>". $row["web_page"] . "</td>" .
                         			"<td>". $row["server_name"] . "</td>" .
@@ -1418,7 +1469,7 @@
                         			"<td>". $row["server_location"] . "</td>" .
                         			"<td>". $row["server_timezone"] . "</td>" .
                         			"<td>". $row["htdocs_dir"] . "</td>" .									 
-                        			"<td>". $row["conf_dir"] . "</td>" .
+                        			"<td>". $row["exe_dir"] . "</td>" .
                         			"<td>". $row["refresh_sec"] . "</td>" .
                         			"<td>". $row["_default"] . "</td>" .									
                         			//"<td>". $row["active"] . "</td>" .									
@@ -1737,6 +1788,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="alert_msg" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Attention!</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+            </button>
+          </div>
+			  <div class="modal-body">				
+				  <div class="form-group">					
+					<h5 class="modal-message"></h5>
+				  </div>
+				  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				  <button type="submit" class="btn btn-primary" name="delete_server" >Delete</button>					 
+				
+			  </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Continue</button>            
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      $('#alert_msg').on('show.bs.modal', function (event) {
+        var link = $(event.relatedTarget) // Button that triggered the modal
+        var alert_msg = link.data('alert_msg') // Extract info from data-* attributes
+        var modal = $(this)        
+        modal.find('.modal-body .modal-message').text(alert_msg)		   
+      })           
+    </script> 	
 	
     <!-- SERVER -->
     <div class="modal fade" id="selectBoardToMonitor" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -1798,11 +1883,6 @@
         </div>
       </div>
     </div>
-	
-	
-	
-	
-	
     <script type="text/javascript">
       $('#delServer').on('show.bs.modal', function (event) {
         var link = $(event.relatedTarget) // Button that triggered the modal
@@ -1884,16 +1964,21 @@
                 <label for="htdocs_dir" class="col-form-label">htdocs_dir:</label>
                 <input class="form-control" id="htdocs_dir" name="htdocs_dir" ></input>
               </div>
-              <div class="form-group conf_dir">
-                <label for="conf_dir" class="col-form-label">conf_dir:</label>
-                <input class="form-control" id="conf_dir" name="conf_dir" ></input>
+			  
+              <div class="form-group exe_dir">
+                <label for="exe_dir" class="col-form-label">exe_dir:</label>
+                <input class="form-control" id="exe_dir" name="exe_dir" ></input>
               </div>
 			  
               <div class="form-group refresh_sec">
-                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
+                <label for="refresh_sec" class="col-form-label">refresh_sec:</label>
                 <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
               </div>			  
-			  
+
+              <div class="form-group active">
+                <label for="active" class="col-form-label">active:</label>
+                <input class="form-control" id="active" name="active"  ></input>
+              </div> 			  
               </br>
               </br>
               <div class="modal-footer">
@@ -1914,11 +1999,10 @@
         var server_location = link.data('server_location') // Extract info from data-* attributes
         var server_timezone = link.data('server_timezone') // Extract info from data-* attributes
         var htdocs_dir = link.data('htdocs_dir') // Extract info from data-* attributes
-        var conf_dir = link.data('conf_dir') // Extract info from data-* attributes
-        var refresh_sec = link.data('refresh_sec') // Extract info from data-* attributes
-      
-      var modal = $(this)
-      
+        var exe_dir = link.data('exe_dir') // Extract info from data-* attributes
+        var refresh_sec = link.data('refresh_sec') // Extract info from data-* attributes      
+        var active = link.data('active') // Extract info from data-* attributes      
+		var modal = $(this)      
         modal.find('.modal-title').text('Edit Server ' + server_name)
         modal.find('.modal-body .server_name input').val(server_name)
         modal.find('.modal-body .server_desc textarea').val(server_desc)
@@ -1926,8 +2010,9 @@
         modal.find('.modal-body .server_location input').val(server_location)
         modal.find('.modal-body .server_timezone .default_server_timezone').text(server_timezone)
         modal.find('.modal-body .htdocs_dir input').val(htdocs_dir)
-        modal.find('.modal-body .conf_dir input').val(conf_dir)
+        modal.find('.modal-body .exe_dir input').val(exe_dir)
         modal.find('.modal-body .refresh_sec input').val(refresh_sec)
+        modal.find('.modal-body .active input').val(refresh_sec)
       })           
     </script>
 	
@@ -1967,7 +2052,7 @@
               </div>				  
 			  
               <div class="form-group refresh_sec">
-                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
+                <label for="refresh_sec" class="col-form-label">refresh_sec:</label>
                 <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
               </div>
 			  
@@ -2103,7 +2188,7 @@
             <form class="user" action="?p=4" method="post">
               <div class="form-group">
                 <label for="server_name" class="col-form-label">server_name:</label>
-                <input type="text" class="form-control" id="server_name" name="server_name">
+                <input type="text" class="form-control" id="server_name" name="server_name"  value="<?php echo generate_string(); ?>" >
               </div>
               <div class="form-group">
                 <label for="server_desc" class="col-form-label">server_desc:</label>
@@ -2111,11 +2196,11 @@
               </div>
               <div class="form-group">
                 <label for="server_ip" class="col-form-label">server_ip:</label>
-                <input class="form-control" id="server_ip" name="server_ip"></input>
+                <input class="form-control" id="server_ip" name="server_ip" value="127.0.0.1" ></input>
               </div>
               <div class="form-group">
                 <label for="server_location" class="col-form-label">server_location:</label>
-                <input class="form-control" id="server_location" name="server_location"></input>
+                <input class="form-control" id="server_location" name="server_location" value="default_location" ></input>
               </div>
               <div class="form-group">
                 <label for="server_timezone">server_timezone:</label>
@@ -2129,13 +2214,13 @@
                 <input class="form-control" id="htdocs_dir" name="htdocs_dir" value="C:\xampp\htdocs"></input>
               </div>
               <div class="form-group">
-                <label for="conf_dir" class="col-form-label">conf_dir:</label>
-                <input class="form-control" id="conf_dir" name="conf_dir"  value="C:\xampp\htdocs\portty\exe"></input>
+                <label for="exe_dir" class="col-form-label">exe_dir:</label>
+                <input class="form-control" id="exe_dir" name="exe_dir"  value="C:\xampp\htdocs\portty\exe"></input>
               </div>
 
               <div class="form-group">
-                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
-                <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
+                <label for="refresh_sec" class="col-form-label">refresh_sec:</label>
+                <input class="form-control" id="refresh_sec" name="refresh_sec"  value="3"></input>
               </div>
              
               <div class="modal-footer">
@@ -2162,7 +2247,7 @@
               <div class="form-group">
                 <label for="board_name" class="col-form-label">board_name:</label>                        
                 <!--<input type="text" class="form-control" id="recipient-name">-->
-                <input type="text" class="form-control" id="board_name" name="board_name" >
+                <input type="text" class="form-control" id="board_name" name="board_name" value="<?php echo generate_string();?>" >
               </div>
               <div class="form-group">
                 <label for="board_desc" class="col-form-label">board_desc:</label>
@@ -2170,7 +2255,7 @@
               </div>            
               <div class="form-group">
                 <label for="inputState">server_name:</label>
-                <select id="inputState" class="form-control" name="server_name">				
+                <select id="inputState" class="form-control" name="server_name"  >				
 				<?php 		
 					echo $server_list_option; 
 				?>
@@ -2179,7 +2264,7 @@
 
               <div class="form-group">
                 <label for="com_port" class="col-form-label">com_port:</label>
-                <input type="text" class="form-control" id="com_port" name="com_port" >
+                <input type="text" class="form-control" id="com_port" name="com_port" value="com10" >
               </div>			  
             
               <fieldset class="form-group">
@@ -2200,8 +2285,8 @@
               </fieldset>
 			  
               <div class="form-group">
-                <label for="conf_dir" class="col-form-label">refresh_sec:</label>
-                <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
+                <label for="refresh_sec" class="col-form-label">refresh_sec:</label>
+                <input class="form-control" id="refresh_sec" name="refresh_sec"  value="3"></input>
               </div>
 			  
 			  

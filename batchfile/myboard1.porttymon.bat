@@ -3,11 +3,11 @@
 
 	c: 
 
-	cd C:\\xampp\\htdocs\\portty\\exe\\conf 
+	cd C:\\xampp\\htdocs\\portty\\exe 
 
 	rem del /q /f myboard1.output 
 
-	cd ..
+	rem cd ..
 	rem timeout /t 5 /nobreak
 	porttymon.exe myboard1 com10 3 
 
