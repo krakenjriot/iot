@@ -26,7 +26,7 @@ function update_list($board_name){
 		}
 	} 
 	
-	echo "pins ".$pins."</br>";
+	//echo "pins ".$pins."</br>";
 	
 	//get server name
 	$sql = "SELECT * FROM tbl_boards WHERE board_name = '$board_name' ";	
@@ -41,7 +41,7 @@ function update_list($board_name){
 		}
 	} 	
 
-	echo "server_name ".$server_name."</br>";
+	//echo "server_name ".$server_name."</br>";
 	
 	//get server ip
 	$sql = "SELECT * FROM tbl_servers WHERE server_name = '$server_name' ";	
@@ -52,19 +52,20 @@ function update_list($board_name){
 			// output data of each row
 			while($row = mysqli_fetch_assoc($result)) {
 			$server_ip = $row['server_ip'];
+			$server_name = $row['server_name'];
 			$exe_dir = addslashes($row['exe_dir']);
 			$htdocs_dir = addslashes($row['htdocs_dir']);
 			$server_timezone = $row['server_timezone'];
 		}
 	}
 	
-	echo "server_ip ".$server_ip."</br>";
-	echo "exe_dir ".$exe_dir."</br>";
-	echo "server_timezone ".$server_timezone."</br>";
+	//echo "server_ip ".$server_ip."</br>";
+	//echo "exe_dir ".$exe_dir."</br>";
+	//echo "server_timezone ".$server_timezone."</br>";
 
 	$url = "http://". $server_ip . "/portty/api/?board_name=$board_name&pins=$pins&exe_dir=$exe_dir&server_timezone=$server_timezone&htdocs_dir=$htdocs_dir&board_refresh_sec=$board_refresh_sec";
 	
-	echo "url ".$url."</br>";	
+	//echo "url ".$url."</br>";	
 	//check if server ip is present if not insert
 	//$sql = "SELECT * FROM tbl_url WHERE board_name = 'myboard1' ";	
 	$sql = "SELECT * FROM tbl_url WHERE board_name = '$board_name' ";	
@@ -206,7 +207,9 @@ function check_htdocs_dir_exist($url){
        function check_root_url_reachable($url)
        {
                //check, if a valid url is provided
-               if(!filter_var($url, FILTER_VALIDATE_URL))
+               
+			  
+			   if(!filter_var($url, FILTER_VALIDATE_URL))
                {
                        return false;
                }
@@ -214,7 +217,7 @@ function check_htdocs_dir_exist($url){
                //initialize curl
                $curlInit = curl_init($url);
                //curl_setopt($curlInit,CURLOPT_CONNECTTIMEOUT,10);
-               curl_setopt($curlInit,CURLOPT_CONNECTTIMEOUT,10);
+               curl_setopt($curlInit,CURLOPT_CONNECTTIMEOUT,1);
                curl_setopt($curlInit,CURLOPT_HEADER,true);
                curl_setopt($curlInit,CURLOPT_NOBODY,true);
                curl_setopt($curlInit,CURLOPT_RETURNTRANSFER,true);
@@ -224,9 +227,26 @@ function check_htdocs_dir_exist($url){
 
                curl_close($curlInit);
 
-               if ($response) return true;
+               if ($response) return 1;
 
-               return false;
+               return 0;
+			 
+			   /*
+			   $ctx = stream_context_create(['http' => ['timeout' => 5]]); // 5 seconds
+               $response = @file_get_contents($url, null, $ctx);
+				
+				
+				if (!empty($response)){
+					return 1;			
+				} else {
+					return 0;
+				}			   */
+			   
+			   
+			   
+			   
+			   
+			   
        }//
 
 

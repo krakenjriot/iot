@@ -444,7 +444,7 @@
   " server_location = '$server_location', ".
   " server_timezone = '$server_timezone', ".
   " refresh_sec = '$refresh_sec', ".
-  " active = $refresh_sec, ".
+  " active = $active, ".
   " htdocs_dir = '$htdocs_dir', ".		
   " exe_dir = '$exe_dir' ".	
   
@@ -520,21 +520,41 @@
    
   if(isset($_POST['delete_server']))
   {
-  $server_name = $_POST['server_name'];
-  
-  
-  // sql to delete a record
-  $sql = "DELETE FROM tbl_servers WHERE server_name='$server_name'";
-  
-  if (mysqli_query($conn, $sql)) {
-   //echo "Record deleted successfully";
-   	header("location: ?p=4&server_notif=delete-server-success#mark-server");
-  exit();			  
-  } else {
-   //echo "Error deleting record: " . mysqli_error($conn);
-   	header("location: ?p=4&server_notif=".mysqli_error($conn));
-  exit();			  
-  }	
+	  $server_name = $_POST['server_name'];
+	  
+	  
+	  // 
+	  $sql = "DELETE FROM tbl_url WHERE server_name='$server_name'";
+		if (mysqli_query($conn, $sql)) {
+			//do nothing
+		}
+		
+		
+		
+	 //clear server name on boards
+	$sql = "SELECT * FROM tbl_boards WHERE  server_name ='$server_name'";
+	$result = mysqli_query($conn, $sql); 
+	if (mysqli_num_rows($result) > 0) 
+	{	
+		while($row = mysqli_fetch_assoc($result)) {
+			$board_name = $row['board_name'];		
+			$sql = "UPDATE tbl_boards SET server_name = '' WHERE board_name = '$board_name' ";
+			$conn->query($sql);			
+		}  
+	}		
+		 
+	  // sql to delete a record
+	  $sql = "DELETE FROM tbl_servers WHERE server_name='$server_name'";
+	  
+	  if (mysqli_query($conn, $sql)) {
+	   //echo "Record deleted successfully";
+		header("location: ?p=4&server_notif=delete-server-success#mark-server");
+		exit();			  
+	  } else {
+	   //echo "Error deleting record: " . mysqli_error($conn);
+		header("location: ?p=4&server_notif=".mysqli_error($conn));
+	  exit();			  
+	  }	
   }     
    
    
@@ -617,8 +637,8 @@
 	} 
 	
   
-  	$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, exe_dir, refresh_sec)
-  	VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$exe_dir', '$refresh_sec')";
+  	$sql = "INSERT INTO tbl_servers (active, server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, exe_dir, refresh_sec)
+  	VALUES (1, '$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$exe_dir', '$refresh_sec')";
   
   	if ($conn->query($sql) === TRUE) {
   		//echo "New record created successfully";		
@@ -1975,10 +1995,29 @@
                 <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
               </div>			  
 
+        
+
+
               <div class="form-group active">
-                <label for="active" class="col-form-label">active:</label>
-                <input class="form-control" id="active" name="active"  ></input>
-              </div> 			  
+                <label for="active">active:</label>
+                <select id="active" class="form-control" name="active" > 				  
+					<option class="default_active" selected ></option>
+					<option>0</option>
+					<option>1</option>				  
+                </select>
+              </div>
+
+
+
+
+
+
+
+
+
+
+
+			  
               </br>
               </br>
               <div class="modal-footer">
@@ -2012,7 +2051,7 @@
         modal.find('.modal-body .htdocs_dir input').val(htdocs_dir)
         modal.find('.modal-body .exe_dir input').val(exe_dir)
         modal.find('.modal-body .refresh_sec input').val(refresh_sec)
-        modal.find('.modal-body .active input').val(refresh_sec)
+        modal.find('.modal-body .active .default_active').text(active)
       })           
     </script>
 	
@@ -2136,10 +2175,8 @@
                 <select id="inputState" class="form-control" name="active">				
 				<option class="default_active" selected ></option>
 				<option value="0" >0</option>
-				<option value="1" >1</option>
-				
-                </select>				
-				
+				<option value="1" >1</option>				
+                </select>
               </div>
 				</br>
 				</br>
