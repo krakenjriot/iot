@@ -239,6 +239,8 @@
   
   if(isset($_POST['selectBoardToMonitor']))
   {
+		
+		
 		$board_name = $_POST['board_name'];
 		
 		
@@ -1456,9 +1458,25 @@
                         exe_dir
                         */
                         
-                        $sql = "SELECT * FROM tbl_servers ";
-                        $result = mysqli_query($conn, $sql);
-                        $i = 1;
+						//$board_name_monitored
+                        $sql = "SELECT * FROM tbl_boards WHERE board_name = '$board_name_monitored' ";
+                        $result = mysqli_query($conn, $sql);                        
+                        if (mysqli_num_rows($result) > 0) 
+                        {
+                        	  // output data of each row
+                        		while($row = mysqli_fetch_assoc($result)) {
+									$server_name = $row["server_name"];	
+									$sql = "SELECT * FROM tbl_servers WHERE server_name = '$server_name' ";
+								}
+                        } else {
+							$sql = "SELECT * FROM tbl_servers ";
+						}			
+									
+
+                        
+						
+						
+                        $result = mysqli_query($conn, $sql);                       
                         if (mysqli_num_rows($result) > 0) 
                         	{
                         	  // output data of each row
@@ -1599,8 +1617,32 @@
                         	<th>trash</th>
                         
                         */
+						
+						
+						
+						
+						//$board_name_monitored
+                        $sql = "SELECT * FROM tbl_boards WHERE board_name = '$board_name_monitored' ";
+                        $result = mysqli_query($conn, $sql);                        
+                        if (mysqli_num_rows($result) > 0) 
+                        {
+                        	  // output data of each row
+                        		while($row = mysqli_fetch_assoc($result)) {
+									$board_name = $row["board_name"];	
+									$sql = "SELECT * FROM tbl_boards WHERE board_name = '$board_name' ";
+								}
+                        } else {
+							$sql = "SELECT * FROM tbl_boards ";
+						}						
+						
+						
+						
+						
+						
+						
+						
                         
-                        $sql = "SELECT * FROM tbl_boards ";
+                        //$sql = "SELECT * FROM tbl_boards ";
                         $result = mysqli_query($conn, $sql);
                         $i = 1;
                         if (mysqli_num_rows($result) > 0) 
@@ -1710,8 +1752,31 @@
                         	board_name
                         	active
                         */
+						
+						
+						
+						//$board_name_monitored
+                        $sql = "SELECT * FROM tbl_pins WHERE board_name = '$board_name_monitored' ";
+                        $result = mysqli_query($conn, $sql);                        
+                        if (mysqli_num_rows($result) > 0) 
+                        {
+                        	  // output data of each row
+                        		while($row = mysqli_fetch_assoc($result)) {
+									$board_name = $row["board_name"];	
+									$sql = "SELECT * FROM tbl_pins WHERE board_name = '$board_name' ";
+								}
+                        } else {
+							$sql = "SELECT * FROM tbl_pins ";
+						}						
+						
+						
+						
+						
+						
+						
+						
                         
-                        $sql = "SELECT * FROM tbl_pins ";
+                        //$sql = "SELECT * FROM tbl_pins ";
                         $result = mysqli_query($conn, $sql);
                         $i = 1;
                         if (mysqli_num_rows($result) > 0) 
@@ -1859,16 +1924,14 @@
 			  
               <div class="form-group board_name">
                 <label for="inputState">board_name:</label>
-                <select id="inputState" class="form-control" name="board_name">	
-				
-				<option class="default-server-name" selected ><?php echo $board_name_monitored; ?></option>
+                <select id="inputState" class="form-control" name="board_name">					
+				<option class="default-board-name" selected ><?php echo $board_name_monitored; ?></option>
+				<option >Select All</option>
 				<?php 		
 					echo $board_name_list_option; 
 				?>
                 </select>
-              </div>			  
-			  
-			  
+              </div>	
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="submit" class="btn btn-primary" name="selectBoardToMonitor" >Monitor</button>					 
             </form>
@@ -1876,6 +1939,23 @@
         </div>
       </div>
     </div>	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
