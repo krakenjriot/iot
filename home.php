@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 include ("dbconnect.php");
 include ("functions.php");
@@ -109,10 +110,85 @@ if (mysqli_num_rows($result) > 0)
   $sql = "SELECT COUNT(DISTINCT(board_name) FROM tbl_dht ";
   $result = mysqli_query($conn, $sql);
   $board_name = "";
+=======
+<?php	
+  include("dbconnect.php");
+  include("functions.php");
+  
+  $online_servers = "";
+  $offline_servers = "";
+  //get server_notif
+  if(isset($_GET['server_notif'])){
+  	$server_notif = $_GET['server_notif'];
+  } else {
+  	$server_notif = "";
+  }
+  
+  //get board-notif
+  if(isset($_GET['board_notif'])){
+  	$board_notif = $_GET['board_notif'];
+  } else {
+  	$board_notif = "";
+  }
+  
+  
+  //get board-notif
+  if(isset($_GET['pin_notif'])){
+  	$pin_notif = $_GET['pin_notif'];
+  } else {
+  	$pin_notif = "";
+  }	
+  
+  
+  $config = include 'config';
+  $email = $config['email'];
+  $fname = $config['fname'];
+  $lname = $config['lname'];
+  $ipaddress = $config['ipaddress'];
+  $fullname = ucfirst($fname)." ".ucfirst($lname);
+  
+  
+ 	/******************************************/
+	/******************************************/	
+	//get ip address
+	$ipaddress = getenv('HTTP_HOST');	
+
+	//save ip address to object
+	$config['ipaddress'] = $ipaddress;
+	
+	//save config to file
+	file_put_contents('config', '<?php return ' . var_export($config, true) . ';');	
+	
+	
+	//check if this ip is default machine
+	//updat default and non-default
+	
+	$sql = "UPDATE tbl_servers SET ". 
+	" _default = 1 ".  
+	"WHERE server_ip = '$ipaddress' ";
+  
+	if ($conn->query($sql) === TRUE) {
+	  //	
+	} 	
+	
+	//check if this ip is default machine
+	$sql = "UPDATE tbl_servers SET ". 
+	" _default = 0 ".  
+	"WHERE server_ip <> '$ipaddress' ";
+  
+	if ($conn->query($sql) === TRUE) {
+	  //	
+	} 		
+	/******************************************/
+  //create server list   
+  $sql = "SELECT server_ip FROM tbl_servers WHERE _default = 1 ";
+  $result = mysqli_query($conn, $sql);
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
   if (mysqli_num_rows($result) > 0) 
   {
 	// output data of each row
 	while($row = mysqli_fetch_assoc($result)) {
+<<<<<<< HEAD
 		$dht_count = $row['COUNT(DISTINCT(board_name)'];
 	}
   } */
@@ -129,6 +205,39 @@ $sql = "SELECT * FROM tbl_servers WHERE web_service=1";
 if ($result = mysqli_query($conn, $sql))
 {
     $online_servers = mysqli_num_rows($result);
+=======
+		$server_ip_local = $row['server_ip'];
+	}
+  } 
+  
+
+	if($server_ip_local == $ipaddress) $online_text = "<span class'text-success'>Local</span>";
+	else $online_text = "<span class'text-info'>Remote</span>";
+
+
+  
+	/******************************************/ 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //count online server	
+  $sql = "SELECT * FROM tbl_servers WHERE active=1";
+  if ($result = mysqli_query($conn,$sql))
+   {	  
+    $online_servers = mysqli_num_rows($result);	  
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
     mysqli_free_result($result);
 }
 
@@ -156,6 +265,7 @@ if ($result = mysqli_query($conn, $sql))
 {
     $offline_boards = mysqli_num_rows($result);
     mysqli_free_result($result);
+<<<<<<< HEAD
 }
 
 $online_switches = "";
@@ -174,6 +284,24 @@ $sql = "SELECT * FROM tbl_pins WHERE active=0";
 if ($result = mysqli_query($conn, $sql))
 {
     $offline_switches = mysqli_num_rows($result);
+=======
+   }	 
+   
+   
+  //count online board	
+  $sql = "SELECT * FROM tbl_pins WHERE active=1";
+  if ($result = mysqli_query($conn,$sql))
+   {	  
+    $online_switches = mysqli_num_rows($result);	  
+    mysqli_free_result($result);
+   }
+  
+  //count offline board
+  $sql = "SELECT * FROM tbl_pins WHERE active=0";
+  if ($result = mysqli_query($conn,$sql))
+   {	  
+    $offline_switches = mysqli_num_rows($result);	  
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
     mysqli_free_result($result);
 }
 
@@ -522,6 +650,7 @@ if (isset($_POST['delete_board']))
 	if(file_exists($file_batch)){
 		unlink($file_batch);	
 	}
+<<<<<<< HEAD
 	
 	$file_limits = "exe\\conf\\$board_name.limits";
 	if(file_exists($file_limits)){
@@ -690,6 +819,378 @@ if (isset($_POST['submit_board']))
 
 ?>
 
+=======
+  } 
+  else 
+	{
+  echo "0 results";
+       }
+                                   	
+  
+  
+  //create board list   
+  $sql = "SELECT board_name FROM tbl_boards ";
+  $result = mysqli_query($conn, $sql);  
+  $board_name_list_option = "";
+  if (mysqli_num_rows($result) > 0) 
+  {
+	// output data of each row
+	while($row = mysqli_fetch_assoc($result)) {
+		$board_name_list_option .= "<option>". $row['board_name'] ."</option>";					
+	}
+  } 
+  
+
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  if(isset($_POST['edit_pin']))
+  {
+	/*
+		pin_name
+		pin_num
+		pin_desc
+		board_name
+		active		
+	*/
+  $id = $_POST['id'];
+  $pin_name = $_POST['pin_name'];
+  $pin_num = $_POST['pin_num']; 
+  $pin_desc = $_POST['pin_desc'];
+  $active = $_POST['active'];
+  
+  
+  
+  //get board name  
+
+	$sql = "SELECT * FROM tbl_pins WHERE id = '$id' ";	
+	$result = mysqli_query($conn, $sql);  
+	$board_name = "";	
+	if (mysqli_num_rows($result) > 0) 
+		{
+			// output data of each row
+			while($row = mysqli_fetch_assoc($result)) {
+			$board_name = $row['board_name'];
+		}
+	}
+  
+  
+  
+  
+  
+  
+  $sql = "UPDATE tbl_pins SET ".
+  
+  " pin_desc = '$pin_desc', ".
+  " pin_name = '$pin_name', ".
+  " active = '$active' ".	
+  
+  "WHERE id = '$id' ";
+  
+  if ($conn->query($sql) === TRUE) {
+	 
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//update url
+	update_list($board_name);	  
+	  
+   	header("location: ?p=4&pin_notif=update-pin-success#mark-pin");
+	exit();	
+  } else {		  
+   	header("location: ?p=4&pin_notif=" . $conn->error . "#mark-pin");
+	exit();			  
+  }			
+  }  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if(isset($_POST['edit_board']))
+  {
+  $com_port = $_POST['com_port'];
+  $board_name = $_POST['board_name'];
+  $board_desc = $_POST['board_desc'];
+  $server_name = $_POST['server_name'];
+  $board_type = $_POST['board_type'];
+  
+  $sql = "UPDATE tbl_boards SET ".
+  
+  " board_desc = '$board_desc', ".
+  " server_name = '$server_name', ".
+  " com_port = '$com_port', ".
+  " board_type = '$board_type' ".	
+  
+  "WHERE board_name = '$board_name' ";
+  
+	  if ($conn->query($sql) === TRUE) {
+		//*********** UPDATE UPDATE UPDATE ************************	
+		//*********** UPDATE UPDATE UPDATE ************************	
+		//*********** UPDATE UPDATE UPDATE ************************	
+		//*********** UPDATE UPDATE UPDATE ************************	  
+		//update url
+		update_list($board_name);
+		  
+		  
+		header("location: ?p=4&board_notif=update-board-success#mark-board");
+		exit();	
+	  } else {		  
+		header("location: ?p=4&board_notif=" . $conn->error . "#mark-board");
+		exit();			  
+	  }			
+  }//
+  
+  
+  if(isset($_POST['edit_server']))
+  {
+  /*
+  server_desc
+  server_ip
+  server_location
+  server_timezone
+  htdocs_dir
+  conf_dir		
+  */
+  $server_name = $_POST['server_name'];
+  $server_desc = $_POST['server_desc'];
+  $server_ip = $_POST['server_ip'];
+  $server_location = $_POST['server_location'];
+  $server_timezone = $_POST['server_timezone'];		
+  $htdocs_dir = addslashes($_POST['htdocs_dir']);
+  $conf_dir = addslashes($_POST['conf_dir']);		
+  
+  
+  $sql = "UPDATE tbl_servers SET ".
+  
+  " server_desc = '$server_desc', ".
+  " server_ip = '$server_ip', ".
+  " server_location = '$server_location', ".
+  " server_timezone = '$server_timezone', ".
+  " htdocs_dir = '$htdocs_dir', ".		
+  " conf_dir = '$conf_dir' ".	
+  
+  "WHERE server_name = '$server_name' ";
+  
+  if ($conn->query($sql) === TRUE) {
+   	header("location: ?p=4&server_notif=update-server-success#mark-server");
+	exit();	
+  } else {		  
+   	header("location: ?p=4&server_notif=" . $conn->error . "#mark-server");
+	exit();			  
+  }	
+  
+  }
+  
+     
+   
+   
+  if(isset($_POST['delete_server']))
+  {
+  $server_name = $_POST['server_name'];
+  
+  
+  // sql to delete a record
+  $sql = "DELETE FROM tbl_servers WHERE server_name='$server_name'";
+  
+  if (mysqli_query($conn, $sql)) {
+   //echo "Record deleted successfully";
+   	header("location: ?p=4&server_notif=delete-server-success#mark-server");
+  exit();			  
+  } else {
+   //echo "Error deleting record: " . mysqli_error($conn);
+   	header("location: ?p=4&server_notif=".mysqli_error($conn));
+  exit();			  
+  }	
+  }     
+   
+  if(isset($_POST['delete_board']))
+  {
+  $board_name = $_POST['board_name'];
+  
+  
+  // sql to delete a record
+  $sql = "DELETE FROM tbl_boards WHERE board_name='$board_name'";
+  
+  if (mysqli_query($conn, $sql)) {
+  //
+  } 
+  
+  
+  $sql = "DELETE FROM tbl_url WHERE board_name='$board_name'";  
+  if (mysqli_query($conn, $sql)) {
+  //			  
+  } 
+  
+  $sql = "DELETE FROM tbl_pins WHERE board_name='$board_name'";
+  
+  if (mysqli_query($conn, $sql)) {
+   //echo "Record deleted successfully";
+   	header("location: ?p=4&board_notif=delete-board-success#mark-board");
+  exit();			  
+  } else {
+   //echo "Error deleting record: " . mysqli_error($conn);
+   	header("location: ?p=4&board_notif=".mysqli_error($conn));
+  exit();			  
+  }
+  
+  
+  }//     
+   
+   
+   
+  	
+  	
+  if(isset($_POST['submit_server'])){
+  	/*
+  	server_name
+  	server_desc
+  	server_ip
+  	server_location
+  	server_timezone
+  	htdocs_dir
+  	conf_dir
+  	*/		
+  	$server_name = $_POST['server_name'];
+  	$server_desc = $_POST['server_desc'];
+  	$server_ip = $_POST['server_ip'];
+  	$server_location = $_POST['server_location'];
+  	$server_timezone = $_POST['server_timezone'];
+  	$htdocs_dir = addslashes($_POST['htdocs_dir']);
+  	$conf_dir = addslashes($_POST['conf_dir']);
+	
+	$server_name = str_replace(" ","_",$server_name);
+  
+  	//$sql = "SELECT * FROM tbl_serverss ";
+  	//$result = mysqli_query($conn, $sql);
+  
+  	$sql = "INSERT INTO tbl_servers (server_name, server_desc, server_ip, server_location, server_timezone, htdocs_dir, conf_dir)
+  	VALUES ('$server_name', '$server_desc', '$server_ip', '$server_location', '$server_timezone', '$htdocs_dir', '$conf_dir')";
+  
+  	if ($conn->query($sql) === TRUE) {
+  		//echo "New record created successfully";
+  	  	header("location: ?p=4&server_notif=new-server-added-successfull#mark-server");
+  		exit();	
+  	} else {
+  	  echo "Error: " . $sql . "<br>" . $conn->error;
+  	}
+  	//$conn->close();
+  } 
+  
+  
+  
+  if(isset($_POST['submit_board'])){
+  	/*
+  	board_name
+  	board_desc
+  	board_location
+  	server_name
+  	active
+  	*/		
+  	$board_name = $_POST['board_name'];
+  	$board_desc = $_POST['board_desc'];
+  	$server_name = $_POST['server_name'];
+  	$com_port = $_POST['com_port'];
+  	$board_type = $_POST['board_type'];
+  	$active = $_POST['active'];
+	
+	$board_name = str_replace(" ","_",$board_name);
+  
+  	$sql = "INSERT INTO tbl_boards (board_name, board_desc, server_name, active, board_type, com_port)
+  	VALUES ('$board_name', '$board_desc', '$server_name', '$active', '$board_type', '$com_port')";
+  	$conn->query($sql);
+  	
+  	//if ($conn->query($sql) === TRUE) {
+  		//echo "New record created successfully";
+  	  	//header("location: ?p=4&board_notif=new-board-added-successfull");
+  		//exit();	
+  	//} 
+  	
+  	//$conn->close();
+  	
+  	
+  	/*
+  		pin_name
+  		pin_desc
+  		pin_num
+  		server_name
+  		active				
+  	*/
+  
+  if($board_type == 'uno') $total_pins = 19;
+  else $total_pins = 69;
+  	
+  	for ($x = 0; $x <= $total_pins; $x++) {
+  		
+  		$sql = "INSERT INTO tbl_pins (pin_num, pin_desc, pin_name, board_name, active)
+  		VALUES ('$x', 'default_desc', 'default_name', '$board_name', '$active')";
+  		$conn->query($sql);
+  		
+  		//if ($conn->query($sql) === TRUE) {
+  			//do nothing	
+  		//} 			  
+  	}
+	
+	
+	
+	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//*********** UPDATE UPDATE UPDATE ************************	
+	//update api based
+	update_list($board_name);
+	create_batch_file_monitor($board_name);
+  	
+  	header("location: ?p=4&board_notif=new-board-added-successfull#mark-board");
+  	exit();					
+  	
+  } 	
+  
+  
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
   
 <!DOCTYPE html>
 <html lang="en">
@@ -883,6 +1384,21 @@ if (isset($_POST['submit_board']))
           <a class="nav-link" href="#mark-pin">
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Pins</span></a>
+<<<<<<< HEAD
+=======
+        </li>
+        <!-- Nav Item - Charts -->
+        <li class="nav-item">
+          <a class="nav-link" href="charts.php">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Charts</span></a>
+        </li>
+        <!-- Nav Item - Tables -->
+        <li class="nav-item">
+          <a class="nav-link" href="tables.php">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Tables</span></a>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
         </li>
   
      
@@ -1128,7 +1644,11 @@ if (isset($_POST['submit_board']))
 		  
             <!-- Page Heading -->
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
+<<<<<<< HEAD
               <h1 class="h3 mb-0 text-gray-800">Switch Board (<?php echo "<b class='text-success'>" . $online_text . "</b>"; ?>)</h1>
+=======
+              <h1 class="h3 mb-0 text-gray-800">Switch Board (<?php echo "<b class='text-success'>".$online_text."</b>"; ?>)</h1>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
               <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
             </div>
@@ -1384,9 +1904,16 @@ if (isset($_POST['submit_board']))
                         <th>server_location</th>
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
+<<<<<<< HEAD
                         <th>exe_dir</th>
 						<th>refresh_sec</th>
                         <th>local</th> 
+=======
+                        <th>conf_dir</th>
+						<th>default</th>
+						<th>active</th>
+                        <th>trash</th>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                       </tr>
                     </thead>
                     <tfoot>
@@ -1402,10 +1929,17 @@ if (isset($_POST['submit_board']))
                         <th>server_location</th>
                         <th>server_timezone</th>
                         <th>htdocs_dir</th>
+<<<<<<< HEAD
                         <th>exe_dir</th>
 						<th>refresh_sec</th>
                         <th>local</th>                        
                         
+=======
+                        <th>conf_dir</th>
+                        <th>default</th>
+                        <th>active</th>
+                        <th>trash</th>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                       </tr>
                     </tfoot>
                     <tbody>
@@ -1457,6 +1991,7 @@ if (mysqli_num_rows($result) > 0)
                         data-refresh_sec='" . $row["refresh_sec"] . "'
                         data-active='" . $row["active"] . "'
                         ><i class='fas fa-edit'></i></a></td>" .
+<<<<<<< HEAD
 
         "<td>" . $row["active"] . "</td>" . "<td>" . $row["web_service"] . "</td>" . "<td>" . $row["web_page"] . "</td>" . "<td>" . $row["server_name"] . "</td>" . "<td>" . $row["server_desc"] . "</td>" . "<td>" . $row["server_ip"] . "</td>" . "<td>" . $row["server_location"] . "</td>" . "<td>" . $row["server_timezone"] . "</td>" . "<td>" . $row["htdocs_dir"] . "</td>" . "<td>" . $row["exe_dir"] . "</td>" . "<td>" . $row["refresh_sec"] . "</td>" . "<td>" . $row["_default"] . "</td>" .
         //"<td>". $row["active"] . "</td>" .
@@ -1480,6 +2015,39 @@ else
 
 
 ?>
+=======
+                        
+                        
+                        			"<td>". $row["server_name"] . "</td>" .
+                        			"<td>". $row["server_desc"] . "</td>" .
+                        			"<td>". $row["server_ip"] . "</td>" .
+                        			"<td>". $row["server_location"] . "</td>" .
+                        			"<td>". $row["server_timezone"] . "</td>" .
+                        			"<td>". $row["htdocs_dir"] . "</td>" .									 
+                        			"<td>". $row["conf_dir"] . "</td>" .
+                        			"<td>". $row["_default"] . "</td>" .									
+                        			"<td>". $row["active"] . "</td>" .									
+                        			//"<td><a href='?p=10&server_name=". $row["server_name"] ."' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .								
+                        			
+                        "<td><a href='#' data-toggle='modal' data-target='#delServer' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["server_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
+                        			//"<a href='#' class='btn btn-primary btn-icon-split' data-toggle='modal' data-target='#addServer' data-id='@getbootstrap' ><i class='fas fa-trash'></i></button></td>".
+                        //"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-mykey='123456' class='btn btn-danger btn-circle btn-sm'><i class='fas fa-trash'></i></td>" .		 
+                        			//"<td><a href='javascript:;' data-toggle='modal' data-target='#deleteServerModal' data-id='1' data-name='Computer' data-duration='255' data-date='27-04-2020' > Edit</a></td>" .
+                        			"</tr>";
+                        		}
+                        	} 
+                        else 
+                        	{
+                        	  echo "0 results";
+                        	}
+                        	
+                        //mysqli_close($conn);
+                        
+                        
+                        					
+                        
+                        ?>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                       <!--
                         <tr>
                             <td>Jonas Alexander</td>
@@ -1524,34 +2092,54 @@ else
                   <table class="display table table-bordered" id="" width="100%" cellspacing="0">
                     <thead>
                       <tr>
+<<<<<<< HEAD
 						<th>trash</th>
                          <th>edit</th>	
 						<th>script</th>
 						<th>porttymon</th>
+=======
+                        <th>edit</th>
+						<th>batch_file</th>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                         <th>board_name</th>
                         <th>board_desc</th>
                         <th>server_name</th>
                         <th>temp</th>
                         <th>hum</th>
                         <th>board_type</th>
+<<<<<<< HEAD
 						<th>refresh_sec</th>
 						<th>com_port</th> 
+=======
+						<th>com_port</th>
+                        <th>trash</th>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                       </tr>
                     </thead>
                     <tfoot>
                       <tr>
+<<<<<<< HEAD
                         <th>trash</th>
                          <th>edit</th>	
 						<th>script</th>
 						<th>porttymon</th>
+=======
+                        <th>edit</th>
+						<th>batch_file</th>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                         <th>board_name</th>
                         <th>board_desc</th>
                         <th>server_name</th>
                         <th>temp</th>
                         <th>hum</th>
                         <th>board_type</th>
+<<<<<<< HEAD
 						<th>refresh_sec</th>
 						<th>com_port</th>                        
+=======
+						<th>com_port</th>
+                        <th>trash</th>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                       </tr>
                     </tfoot>
                     <tbody>
@@ -1575,6 +2163,7 @@ else
                         {
                         	  // output data of each row
                         		while($row = mysqli_fetch_assoc($result)) {
+<<<<<<< HEAD
 									$board_name = $row["board_name"];	
 									$sql = "SELECT * FROM tbl_boards WHERE board_name = '$board_name' ";
 								}
@@ -1615,6 +2204,41 @@ else
 
 
 ?>
+=======
+                        			echo "<tr>" . 
+                        			//"<td>". $i++ . "</td>" .
+                        "<td><a href='#' data-toggle='modal' data-target='#editBoard' class='btn btn-danger btn-circle btn-sm' 
+                        data-board_name='" . $row["board_name"] . "' 
+                        data-board_desc='" . $row["board_desc"] . "' 
+                        data-server_name='" . $row["server_name"] . "'
+                        data-board_type='" . $row["board_type"] . "'						
+                        data-com_port='" . $row["com_port"] . "'						
+                        ><i class='fas fa-edit'></i></a></td>" .											
+									//<a href="/images/myw3schoolsimage.jpg" download="w3logo">
+                        			"<td><a href='batchfile/" . $row["board_name"] . ".porttymon.bat' download><i class='fas fa-download'></i></a></td>" .
+                        			"<td>". $row["board_name"] . "</td>" .
+                        			"<td>". $row["board_desc"] . "</td>" .
+                        			"<td>". $row["server_name"] . "</td>" .								
+                        			"<td>". $row["temp"] . "</td>" .								
+                        			"<td>". $row["hum"] . "</td>" .								
+                        			"<td>". $row["com_port"] . "</td>" .	
+                        			"<td>". $row["board_type"] . "</td>" .	
+                        			"<td><a href='#' data-toggle='modal' data-target='#delBoard' class='btn btn-danger btn-circle btn-sm' data-whatever='" . $row["board_name"] . "'><i class='fas fa-trash'></i></a></td>" .		 												
+                        			"</tr>";
+                        		}
+                        	} 
+                        else 
+                        	{
+                        	  echo "0 results";
+                        	}
+                        	
+                        //mysqli_close($conn);
+                        
+                        
+                        					
+                        
+                        ?>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                       <!--
                         <tr>
                             <td>Jonas Alexander</td>
@@ -1679,12 +2303,20 @@ else
                         	pin_desc						
                         	board_name
                         	active
+<<<<<<< HEAD
 */
 
 //$board_name_monitored
 /*
                         $sql = "SELECT * FROM tbl_pins WHERE board_name = '$board_name_monitored' ";
                         $result = mysqli_query($conn, $sql);                        
+=======
+                        */
+                        
+                        $sql = "SELECT * FROM tbl_pins ";
+                        $result = mysqli_query($conn, $sql);
+                        $i = 1;
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                         if (mysqli_num_rows($result) > 0) 
                         {
                         	  // output data of each row
@@ -1712,6 +2344,7 @@ if (mysqli_num_rows($result) > 0)
 									data-pin_desc='" . $row["pin_desc"] . "' 
 									data-board_name='" . $row["board_name"] . "'														
 									data-active='" . $row["active"] . "'														
+<<<<<<< HEAD
 									><i class='fas fa-edit'></i></a></td>" . "<td>" . $row["active"] . "</td>" . "<td>" . $row["board_name"] . "</td>" . "<td>" . $row["pin_num"] . "</td>" . "<td>" . $row["pin_name"] . "</td>" . "<td>" . $row["pin_desc"] . "</td>" . "</tr>";
     }
 }
@@ -1726,6 +2359,28 @@ else
 
 
 ?>
+=======
+									><i class='fas fa-edit'></i></a></td>" .
+                        			"<td>". $row["pin_num"] . "</td>" .
+                        			"<td>". $row["pin_name"] . "</td>" .
+                        			"<td>". $row["pin_desc"] . "</td>" .
+                        			"<td>". $row["board_name"] . "</td>" .
+                        			"<td>". $row["active"] . "</td>" .
+                        			"</tr>";
+                        		}
+                        	} 
+                        else 
+                        	{
+                        	  echo "0 results";
+                        	}
+                        	
+                        //mysqli_close($conn);
+                        
+                        
+                        					
+                        
+                        ?>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                       <!--
                         <tr>
                             <td>Jonas Alexander</td>
@@ -2085,10 +2740,13 @@ echo $server_list_option;
                 <input type="text" class="form-control" id="com_port" name="com_port" >
               </div>				  
 			  
+<<<<<<< HEAD
               <div class="form-group refresh_sec">
                 <label for="refresh_sec" class="col-form-label">refresh_sec:</label>
                 <input class="form-control" id="refresh_sec" name="refresh_sec"  ></input>
               </div>
+=======
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
 			  
               <div class="form-group board_type">
                 <label for="inputState">board_type:</label>
@@ -2117,12 +2775,18 @@ echo $server_list_option;
         var server_name = link.data('server_name') // Extract info from data-* attributes
         var board_type = link.data('board_type') // Extract info from data-* attributes  
         var com_port = link.data('com_port') // Extract info from data-* attributes  
+<<<<<<< HEAD
         var refresh_sec = link.data('refresh_sec') // Extract info from data-* attributes  
+=======
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
       var modal = $(this)      
         modal.find('.modal-title').text('Edit board ' + board_name)        
         modal.find('.modal-body .board_name input').val(board_name)
         modal.find('.modal-body .com_port input').val(com_port)
+<<<<<<< HEAD
         modal.find('.modal-body .refresh_sec input').val(refresh_sec)
+=======
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
         modal.find('.modal-body .board_desc textarea').val(board_desc)      	
         modal.find('.modal-body .server_name .default-server-name').text(server_name)      
         modal.find('.modal-body .board_type .default_board_type').text(board_type)        
@@ -2246,8 +2910,13 @@ echo $server_list_option;
                 <input class="form-control" id="htdocs_dir" name="htdocs_dir" value="C:\xampp\htdocs"></input>
               </div>
               <div class="form-group">
+<<<<<<< HEAD
                 <label for="exe_dir" class="col-form-label">exe_dir:</label>
                 <input class="form-control" id="exe_dir" name="exe_dir"  value="C:\xampp\htdocs\portty\exe"></input>
+=======
+                <label for="conf_dir" class="col-form-label">conf_dir:</label>
+                <input class="form-control" id="conf_dir" name="conf_dir" " ></input>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
               </div>
 
               <div class="form-group">
@@ -2287,16 +2956,27 @@ echo $server_list_option;
               </div>            
               <div class="form-group">
                 <label for="inputState">server_name:</label>
+<<<<<<< HEAD
                 <select id="inputState" class="form-control" name="server_name"  >				
 				<?php
 echo $server_list_option;
 ?>
+=======
+                <select id="inputState" class="form-control" name="server_name">				
+				<?php 		
+					echo $server_list_option; 
+				?>
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
                 </select>
               </div>
 
               <div class="form-group">
                 <label for="com_port" class="col-form-label">com_port:</label>
+<<<<<<< HEAD
                 <input type="text" class="form-control" id="com_port" name="com_port" value="com10" >
+=======
+                <input type="text" class="form-control" id="com_port" name="com_port" >
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
               </div>			  
             
               <fieldset class="form-group">
@@ -2316,10 +2996,14 @@ echo $server_list_option;
                 </div>
               </fieldset>
 			  
+<<<<<<< HEAD
               <div class="form-group">
                 <label for="refresh_sec" class="col-form-label">refresh_sec:</label>
                 <input class="form-control" id="refresh_sec" name="refresh_sec"  value="3"></input>
               </div>
+=======
+
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
 			  
 			  
               <div class="modal-footer">

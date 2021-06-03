@@ -3,7 +3,13 @@
   'pass' => 'c4ca4238a0b923820dcc509a6f75849b',
   'fname' => 'Rolly',
   'lname' => 'Villacacan',
+<<<<<<< HEAD
   'ipaddress' => '192.168.100.2',
   'refresh_sec' => '3',
   'board_name_monitored' => 'tnD7PLT4UUaxKzFy',
+=======
+  'conf_dir' => 'c:\\tmp\\conf',
+  'htdocs_dir' => 'c:\\xampp\\htdocs',
+  'ipaddress' => '192.168.100.2',
+>>>>>>> d64ecdc97dd7f6a15e89416c7874694e63949b22
 );
